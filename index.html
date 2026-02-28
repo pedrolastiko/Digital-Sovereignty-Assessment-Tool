@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Sovereignty Assessment Tool</title>
+  <style>
+    :root{
+      --cgi-red:#E31937;
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --bg:#f6f7fb;
+      --surface:#ffffff;
+      --shadow:0 10px 22px rgba(17,24,39,.08);
+      --radius:14px;
+
+      /* UI accent inspired by the CGI consultation form (purple progress underline) */
+      --accent:#5b21b6;
+      --accent-2:#7c3aed;
+      --success:#16a34a;
+      --warn:#f59e0b;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:var(--bg);
+    }
+
+    /* ====== HEADER (CGI-like) ====== */
+    .header{
+      position:sticky; top:0; z-index:20;
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      box-shadow:0 6px 18px rgba(17,24,39,.05);
+    }
+
+    .headerTop{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+      padding:12px 18px;
+      max-width:1240px;
+      margin:0 auto;
+    }
+
+    .leftBrand{display:flex; align-items:center; gap:12px}
+    .hamburger{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:#fff;display:grid;place-items:center;cursor:pointer}
+    .hamburger span{display:block;width:16px;height:2px;background:#374151;position:relative}
+    .hamburger span::before,.hamburger span::after{content:"";position:absolute;left:0;width:16px;height:2px;background:#374151}
+    .hamburger span::before{top:-5px}
+    .hamburger span::after{top:5px}
+
+    .logo{display:flex; align-items:center; gap:10px;font-weight:900;}
+    .logoMark{
+      width:38px;height:38px;border-radius:10px;
+      background:rgba(227,25,55,.10);
+      border:1px solid rgba(227,25,55,.25);
+      display:grid;place-items:center;
+      color:var(--cgi-red);
+      font-weight:950;
+      letter-spacing:.5px;
+      user-select:none;
+    }
+    .logoText{line-height:1.05}
+
+    .rightTools{display:flex; align-items:center; gap:10px}
+
+    /* Language dropdown */
+    .langWrap{position:relative}
+    .lang{
+      display:flex;align-items:center;gap:8px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:800;
+      color:#374151;
+      cursor:pointer;
+      user-select:none;
+    }
+    .lang .caret{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #6b7280}
+
+    .langMenu{
+      position:absolute; right:0; top:44px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:0 14px 26px rgba(17,24,39,.10);
+      min-width:160px;
+      padding:6px;
+      display:none;
+      z-index:50;
+    }
+    .langMenu.open{display:block}
+    .langItem{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:850;
+      color:#111827;
+    }
+    .langItem:hover{background:#f3f4f6}
+    .langItem small{color:var(--muted);font-weight:800}
+
+    .iconBtn{
+      width:36px;height:36px;border-radius:999px;
+      border:1px solid var(--border);
+      background:#fff;
+      cursor:pointer;
+      display:grid;place-items:center;
+      color:#374151;
+      font-weight:900;
+    }
+
+    /* ====== STEP NAV (CGI-like) ====== */
+    .stepNav{border-top:1px solid var(--border);background:#fff;}
+    .stepNavInner{
+      max-width:1240px;margin:0 auto;
+      padding:10px 18px 12px;
+      display:grid;
+      grid-template-columns:repeat(10, minmax(110px, 1fr));
+      gap:14px;
+      overflow-x:auto;
+    }
+
+    .step{min-width:110px;display:flex;flex-direction:column;gap:8px;}
+    .stepTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .stepLabel{font-size:12.5px;font-weight:800;color:#374151;line-height:1.15}
+
+    .badge{
+      width:22px;height:22px;border-radius:999px;
+      border:1px solid var(--border);
+      display:grid;place-items:center;
+      font-size:12px;font-weight:950;
+      color:#6b7280;
+      background:#fff;
+      flex:0 0 auto;
+    }
+    .badge.done{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.35);color:var(--success)}
+    .badge.active{background:rgba(91,33,182,.10);border-color:rgba(91,33,182,.25);color:var(--accent)}
+
+    .stepBar{height:6px;border-radius:999px;background:#e5e7eb;overflow:hidden}
+    .stepBar .fill{height:100%;width:0%;background:var(--accent-2)}
+    .step.active .stepBar .fill{width:65%}
+    .step.done .stepBar .fill{width:100%;background:var(--accent)}
+
+    /* ====== MAIN LAYOUT ====== */
+    .page{max-width:1240px;margin:18px auto 92px;padding:0 18px;}
+    .contentGrid{display:grid;grid-template-columns: 1fr;gap:18px;}
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .cardBody{padding:18px}
+
+    .qNumber{font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+    .qTitle{margin:10px 0 8px;font-size:20px;font-weight:950;line-height:1.25}
+    .qHint{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55}
+
+    /* answer choices */
+    .choiceList{display:flex;flex-direction:column;gap:10px}
+    .choiceItem{
+      display:flex;align-items:flex-start;gap:12px;
+      padding:12px 12px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      cursor:pointer;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .choiceItem:hover{border-color:rgba(91,33,182,.35);box-shadow:0 8px 16px rgba(91,33,182,.06)}
+    .radio{
+      width:18px;height:18px;border-radius:999px;
+      border:2px solid #c7cdd8;
+      margin-top:2px;
+      position:relative;
+      flex:0 0 auto;
+    }
+    .choiceItem.selected{border-color:rgba(91,33,182,.45);background:rgba(91,33,182,.03)}
+    .choiceItem.selected .radio{border-color:var(--accent)}
+    .choiceItem.selected .radio::after{content:"";position:absolute;inset:3px;border-radius:999px;background:var(--accent);}
+
+    .choiceText{flex:1}
+    .pillScore{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:26px;height:26px;border-radius:10px;
+      background:rgba(227,25,55,.08);
+      border:1px solid rgba(227,25,55,.25);
+      color:var(--cgi-red);
+      font-weight:950;
+      font-size:13px;
+    }
+    .choiceDesc{margin-top:4px;color:#374151;font-size:15.5px;line-height:1.55}
+
+    .navRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
+    .note{color:var(--muted);font-size:12.5px;line-height:1.35}
+
+    .btn{
+      border-radius:999px;
+      padding:10px 14px;
+      border:1px solid #d1d5db;
+      background:#fff;
+      cursor:pointer;
+      font-weight:850;
+      color:#111827;
+    }
+    .btn:hover{border-color:#9ca3af}
+    .btnPrimary{border-color:rgba(91,33,182,.35);background:var(--accent);color:#fff;}
+    .btnPrimary:hover{filter:brightness(.98)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+
+    /* ====== BOTTOM BAR ====== */
+    .bottomBar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--border);box-shadow:0 -10px 24px rgba(17,24,39,.08);}
+    .bottomInner{max-width:1240px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .completion{font-weight:900;color:#374151}
+    .completion small{display:block;color:var(--muted);font-weight:800;margin-top:2px}
+
+    .saveBtn{border:none;background:var(--accent);color:#fff;font-weight:950;padding:10px 18px;border-radius:12px;cursor:pointer;}
+    .saveBtn:hover{filter:brightness(.98)}
+
+    /* ====== SUMMARY ====== */
+    .summaryGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+    @media (max-width: 980px){.summaryGrid{grid-template-columns:1fr}}
+
+    .panel{border:1px solid var(--border);background:linear-gradient(180deg, #fafafa, #fff);border-radius:16px;padding:14px;}
+    .panelTitle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .panelTitle h3{margin:0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+    .sealPill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(91,33,182,.25);background:rgba(91,33,182,.06);padding:7px 10px;border-radius:999px;font-weight:950;color:var(--accent);font-size:12.5px}
+
+    .scoreHero{display:flex;gap:14px;align-items:center}
+    .scoreLogo{width:48px;height:48px;border-radius:14px;background:rgba(227,25,55,.08);border:1px solid rgba(227,25,55,.25);display:grid;place-items:center;font-weight:950;color:var(--cgi-red);}
+    .scoreBig{font-size:32px;font-weight:1000;line-height:1;margin:0}
+    .scoreSub{margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.35}
+
+    .gaugeWrap{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px}
+    .gauge{width:140px;height:140px;flex:0 0 auto}
+    .gaugeText{font-size:12.5px;color:var(--muted);line-height:1.35}
+
+    .breakdown{display:flex;flex-direction:column;gap:10px}
+    .barRow{display:grid;grid-template-columns:240px 1fr 56px;gap:10px;align-items:center}
+    @media (max-width: 520px){.barRow{grid-template-columns:1fr}}
+    .barLbl{font-size:12.5px;font-weight:900;color:#374151}
+    .bar{height:10px;background:#eef2f7;border:1px solid #e5e7eb;border-radius:999px;overflow:hidden}
+    .barFill{height:100%;background:var(--accent-2)}
+    .barVal{font-size:12.5px;color:var(--muted);font-weight:950;text-align:right}
+
+    .violations{border:1px solid rgba(245,158,11,.35);background:linear-gradient(180deg, rgba(245,158,11,.10), #fff);border-radius:16px;padding:14px;}
+    .violations h3{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#92400e}
+    .violations p{margin:0 0 10px;color:#92400e;font-size:12.5px;line-height:1.35}
+    .violations ul{margin:0;padding-left:18px;color:#374151;font-size:13px;line-height:1.35}
+
+    .roadmap{border:1px solid var(--border);background:#fff;border-radius:16px;padding:14px}
+    .roadmap h3{margin:0 0 10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .timeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    @media (max-width: 980px){.timeline{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width: 520px){.timeline{grid-template-columns:1fr}}
+
+    .stage{border:1px solid var(--border);background:linear-gradient(180deg,#fafafa,#fff);border-radius:16px;padding:12px}
+    .stageTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .stageTop b{font-size:12.5px}
+    .stageTag{font-size:12px;font-weight:950;color:var(--accent);border:1px solid rgba(91,33,182,.25);background:rgba(91,33,182,.06);padding:4px 10px;border-radius:999px}
+    .stage ul{margin:0;padding-left:18px;color:#374151;font-size:13px;line-height:1.35}
+
+    .divider{height:1px;background:var(--border);margin:14px 0}
+
+    @media (prefers-reduced-motion: reduce){
+      *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="headerTop">
+      <div class="leftBrand">
+        <button class="hamburger" aria-label="Menu"><span></span></button>
+        <div class="logo" aria-label="CGI">
+          <div class="logoMark">CGI</div>
+          <div class="logoText" id="appTitle">Digital Sovereignty Assessment Tool</div>
+        </div>
+      </div>
+      <div class="rightTools">
+        <div class="langWrap">
+          <div class="lang" id="langBtn" title="Language">EN <span class="caret"></span></div>
+          <div class="langMenu" id="langMenu" role="menu" aria-label="Language">
+            <div class="langItem" role="menuitem" onclick="setLang('en')">EN <small>English</small></div>
+            <div class="langItem" role="menuitem" onclick="setLang('fr')">FR <small>Français</small></div>
+            <div class="langItem" role="menuitem" onclick="setLang('es')">ES <small>Español</small></div>
+          </div>
+        </div>
+        <button class="iconBtn" id="exitBtn" title="Exit" aria-label="Exit">⎋</button>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="stepNav">
+      <div class="stepNavInner" id="stepNav"></div>
+    </div>
+  </header>
+
+  <!-- Main page -->
+  <main class="page">
+    <div class="contentGrid">
+      <section class="card">
+        <div class="cardBody" id="body"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Bottom bar -->
+  <div class="bottomBar">
+    <div class="bottomInner">
+      <div class="completion" id="completionText">
+        <span id="completionLine">This section is 0% complete — In progress</span>
+        <small id="completionSub">Answers are saved locally (browser).</small>
+      </div>
+      <button class="saveBtn" id="saveBtn" onclick="saveLocal()">Save</button>
+    </div>
+  </div>
+
+<script>
+  // =======================
+  // i18n strings
+  // =======================
+  const STR = {
+    en: {
+      appTitle: 'Digital Sovereignty Assessment Tool',
+      stepsAria: (label)=>`Go to ${label}`,
+      questionOf: (i,total)=>`Question ${i} / ${total}`,
+      selectToContinue: 'Select a score to continue.',
+      previous: 'Previous',
+      next: 'Next',
+      finish: 'Finish',
+      results: 'Results',
+      summaryTitle: 'Sovereignty summary',
+      summaryIntro: 'Overall score, category breakdown, critical violations, and a time-phased roadmap.',
+      overallScore: 'Overall score',
+      interpretation: 'Interpretation',
+      breakdown: 'Breakdown by category',
+      nowNextGap: 'Now / Next / Gap',
+      weight: 'Weight',
+      critical: 'Critical Sovereignty Violations Detected',
+      criticalText: 'Foundational items to fix first (score ≤ 2).',
+      roadmap: 'Roadmap (quick wins)',
+      days0_30: '0–30 days',
+      days30_90: '30–90 days',
+      months3_6: '3–6 months',
+      months6_12: '6–12 months',
+      quickWins: 'Quick wins',
+      stabilize: 'Stabilize',
+      deploy: 'Deploy',
+      optimize: 'Optimize',
+      restart: 'Restart',
+      doneLine: (pct,status)=>`This section is ${pct}% complete — ${status}`,
+      inProgress: 'In progress',
+      completed: 'Completed',
+      savedSub: 'Answers are saved locally (browser).',
+      savedToast: 'Saved locally.',
+      save: 'Save',
+      level: (s)=>`Level ${s}`,
+      weightedLabel: 'Weighted',
+      weightedExplain: (_pct,avg,total)=>`Weighted score (categories + weights). Raw average: ${avg} / 4 · Total: ${total} / 40.`,
+    },
+    fr: {
+      appTitle: 'Outil d\'évaluation de la souveraineté numérique',
+      stepsAria: (label)=>`Aller à ${label}`,
+      questionOf: (i,total)=>`Question ${i} / ${total}`,
+      selectToContinue: 'Sélectionne un score pour continuer.',
+      previous: 'Précédent',
+      next: 'Suivant',
+      finish: 'Terminer',
+      results: 'Résultats',
+      summaryTitle: 'Synthèse souveraineté',
+      summaryIntro: 'Score global, ventilation par catégories, alertes critiques et roadmap dans le temps.',
+      overallScore: 'Score global',
+      interpretation: 'Interprétation',
+      breakdown: 'Ventilation par catégorie',
+      nowNextGap: 'Now / Next / Gap',
+      weight: 'Poids',
+      critical: 'Violations critiques de souveraineté détectées',
+      criticalText: 'Éléments fondamentaux à corriger en priorité (score ≤ 2).',
+      roadmap: 'Roadmap (quick wins)',
+      days0_30: '0–30 jours',
+      days30_90: '30–90 jours',
+      months3_6: '3–6 mois',
+      months6_12: '6–12 mois',
+      quickWins: 'Quick wins',
+      stabilize: 'Stabiliser',
+      deploy: 'Déployer',
+      optimize: 'Optimiser',
+      restart: 'Recommencer',
+      doneLine: (pct,status)=>`Cette section est remplie à ${pct}% — ${status}`,
+      inProgress: 'En cours',
+      completed: 'Terminé',
+      savedSub: 'Réponses sauvegardées localement (browser).',
+      savedToast: 'Sauvegardé localement.',
+      save: 'Sauvegarder',
+      level: (s)=>`Niveau ${s}`,
+      weightedLabel: 'Pondéré',
+      weightedExplain: (_pct,avg,total)=>`Score pondéré (catégories + poids). Moyenne brute: ${avg} / 4 · Total: ${total} / 40.`,
+    },
+    es: {
+      appTitle: 'Herramienta de Evaluación de Soberanía Digital',
+      stepsAria: (label)=>`Ir a ${label}`,
+      questionOf: (i,total)=>`Pregunta ${i} / ${total}`,
+      selectToContinue: 'Selecciona una puntuación para continuar.',
+      previous: 'Anterior',
+      next: 'Siguiente',
+      finish: 'Finalizar',
+      results: 'Resultados',
+      summaryTitle: 'Resumen de soberanía',
+      summaryIntro: 'Puntuación global, desglose por categorías, violaciones críticas y una hoja de ruta por fases.',
+      overallScore: 'Puntuación global',
+      interpretation: 'Interpretación',
+      breakdown: 'Desglose por categoría',
+      nowNextGap: 'Now / Next / Gap',
+      weight: 'Peso',
+      critical: 'Violaciones Críticas de Soberanía Detectadas',
+      criticalText: 'Elementos fundamentales a corregir primero (puntuación ≤ 2).',
+      roadmap: 'Hoja de ruta (quick wins)',
+      days0_30: '0–30 días',
+      days30_90: '30–90 días',
+      months3_6: '3–6 meses',
+      months6_12: '6–12 meses',
+      quickWins: 'Quick wins',
+      stabilize: 'Estabilizar',
+      deploy: 'Desplegar',
+      optimize: 'Optimizar',
+      restart: 'Reiniciar',
+      doneLine: (pct,status)=>`Esta sección está completada al ${pct}% — ${status}`,
+      inProgress: 'En curso',
+      completed: 'Completado',
+      savedSub: 'Las respuestas se guardan localmente (navegador).',
+      savedToast: 'Guardado localmente.',
+      save: 'Guardar',
+      level: (s)=>`Nivel ${s}`,
+      weightedLabel: 'Ponderado',
+      weightedExplain: (_pct,avg,total)=>`Puntuación ponderada (categorías + pesos). Media bruta: ${avg} / 4 · Total: ${total} / 40.`,
+    }
+  };
+
+  // =======================
+  // Questionnaire content (trilingual)
+  // =======================
+  const QUESTIONS = [
+    {
+      id: 'Q1',
+      label: { en:'Governance & strategy', fr:'Gouvernance & stratégie', es:'Gobernanza y estrategia' },
+      title: {
+        en: 'Do we have a clear digital sovereignty strategy?',
+        fr: 'Avons-nous une stratégie claire de souveraineté numérique ?',
+        es: '¿Tenemos una estrategia clara de soberanía digital?'
+      },
+      hint: {
+        en: 'Strategy, ownership, and whether sovereignty influences business and architecture decisions.',
+        fr: 'Stratégie, ownership et influence sur les décisions business et d’architecture.',
+        es: 'Estrategia, responsables y si influye en decisiones de negocio y arquitectura.'
+      },
+      levels: {
+        en: [
+          'No sovereignty strategy or owner.',
+          'Some awareness, mostly ad hoc.',
+          'A draft strategy exists, not used in decisions.',
+          'A formal strategy is used in governance decisions.',
+          'Sovereignty is a default decision and design principle.'
+        ],
+        fr: [
+          'Aucune stratégie de souveraineté ni responsable identifié.',
+          'Sensibilisation partielle, approche surtout ad hoc.',
+          'Une stratégie existe, mais n’influence pas les décisions.',
+          'Stratégie formalisée utilisée en gouvernance.',
+          'La souveraineté est un principe par défaut de décision et de design.'
+        ],
+        es: [
+          'No hay estrategia ni responsable de soberanía.',
+          'Hay cierta conciencia, pero es ad hoc.',
+          'Existe un borrador, pero no guía decisiones.',
+          'La estrategia está formalizada y se usa en gobernanza.',
+          'La soberanía es un principio por defecto en decisiones y diseño.'
+        ]
+      }
+    },
+    {
+      id: 'Q2',
+      label: { en:'Data & residency', fr:'Données & résidence', es:'Datos y residencia' },
+      title: {
+        en: 'Do we know where our critical data lives and moves?',
+        fr: 'Savons-nous où vivent et circulent nos données critiques ?',
+        es: '¿Sabemos dónde viven y se mueven nuestros datos críticos?'
+      },
+      hint: {
+        en: 'Storage, processing, backups, DR, transfers, and SaaS/managed services.',
+        fr: 'Stockage, traitement, sauvegardes, DR, transferts, SaaS et services managés.',
+        es: 'Almacenamiento, procesamiento, copias, DR, transferencias y SaaS/servicios gestionados.'
+      },
+      levels: {
+        en: [
+          'Data location is unknown.',
+          'We know location for a few critical systems.',
+          'We have an inventory, but it is incomplete.',
+          'We have end-to-end data mapping across the lifecycle.',
+          'Residency is enforced with classification and automation.'
+        ],
+        fr: [
+          'Localisation des données inconnue.',
+          'Localisation connue pour quelques systèmes critiques.',
+          'Inventaire existant mais incomplet.',
+          'Cartographie end-to-end sur le cycle de vie.',
+          'Résidence appliquée via classification et automatisation.'
+        ],
+        es: [
+          'La ubicación de los datos es desconocida.',
+          'Conocemos la ubicación de algunos sistemas críticos.',
+          'Tenemos un inventario, pero está incompleto.',
+          'Tenemos mapeo end-to-end del ciclo de vida de datos.',
+          'La residencia se aplica con clasificación y automatización.'
+        ]
+      }
+    },
+    {
+      id: 'Q3',
+      label: { en:'Jurisdiction & access', fr:'Juridiction & accès', es:'Jurisdicción y acceso' },
+      title: {
+        en: 'Do we control extraterritorial access risk?',
+        fr: 'Maîtrisons-nous le risque d’accès extraterritorial ?',
+        es: '¿Controlamos el riesgo de acceso extraterritorial?'
+      },
+      hint: {
+        en: 'Contracts + technical controls (keys, access, operations, support).',
+        fr: 'Contrats + contrôles techniques (clés, accès, opérations, support).',
+        es: 'Contratos + controles técnicos (llaves, acceso, operaciones, soporte).'
+      },
+      levels: {
+        en: [
+          'No controls for extraterritorial access.',
+          'Risk is known, but not mitigated.',
+          'Partial controls (legal or technical only).',
+          'Controls combine contracts, encryption, and architecture.',
+          'Design minimizes extraterritorial exposure by default.'
+        ],
+        fr: [
+          'Aucun contrôle sur l’accès extraterritorial.',
+          'Risque connu mais non mitigé.',
+          'Contrôles partiels (juridique OU technique).',
+          'Contrôles combinant contrats, chiffrement et architecture.',
+          'Design réduisant l’exposition extraterritoriale par défaut.'
+        ],
+        es: [
+          'No hay controles para acceso extraterritorial.',
+          'El riesgo se conoce, pero no se mitiga.',
+          'Controles parciales (solo legal o solo técnico).',
+          'Controles que combinan contratos, cifrado y arquitectura.',
+          'El diseño minimiza la exposición extraterritorial por defecto.'
+        ]
+      }
+    },
+    {
+      id: 'Q4',
+      label: { en:'Portability & reversibility', fr:'Portabilité & réversibilité', es:'Portabilidad y reversibilidad' },
+      title: {
+        en: 'Can we exit or move critical workloads?',
+        fr: 'Pouvons-nous sortir ou déplacer des workloads critiques ?',
+        es: '¿Podemos salir o mover cargas de trabajo críticas?'
+      },
+      hint: {
+        en: 'Realistic exit plans, tested paths, timelines, costs, and constraints.',
+        fr: 'Plans de sortie réalistes, tests, délais, coûts et contraintes.',
+        es: 'Planes de salida realistas, pruebas, plazos, costos y restricciones.'
+      },
+      levels: {
+        en: [
+          'No realistic exit path.',
+          'Exit is theoretical and untested.',
+          'Exit plans exist for some services.',
+          'Portability is tested for critical workloads.',
+          'Portability is standard and repeatable.'
+        ],
+        fr: [
+          'Aucune sortie réaliste.',
+          'Sortie théorique, non testée.',
+          'Plans de sortie pour certains services.',
+          'Portabilité testée pour des workloads critiques.',
+          'Portabilité standardisée et répétable.'
+        ],
+        es: [
+          'No existe una salida realista.',
+          'La salida es teórica y no probada.',
+          'Hay planes de salida para algunos servicios.',
+          'La portabilidad se ha probado en cargas críticas.',
+          'La portabilidad es estándar y repetible.'
+        ]
+      }
+    },
+    {
+      id: 'Q5',
+      label: { en:'Lock-in & standards', fr:'Lock-in & standards', es:'Lock-in y estándares' },
+      title: {
+        en: 'Do we actively reduce vendor lock-in?',
+        fr: 'Réduisons-nous activement le vendor lock-in ?',
+        es: '¿Reducimos activamente el lock-in del proveedor?'
+      },
+      hint: {
+        en: 'Open standards, abstraction, and intentional limits on proprietary dependencies.',
+        fr: 'Standards ouverts, abstraction, et limitation des dépendances propriétaires.',
+        es: 'Estándares abiertos, abstracción y límites intencionales a dependencias propietarias.'
+      },
+      levels: {
+        en: [
+          'Lock-in is not identified.',
+          'We are aware, but we do not act on it.',
+          'We use some open standards or abstraction.',
+          'Lock-in is managed with clear design rules.',
+          'Switching providers is practical and planned.'
+        ],
+        fr: [
+          'Lock-in non identifié.',
+          'Conscience du lock-in, sans action concrète.',
+          'Usage partiel de standards ouverts ou d’abstraction.',
+          'Lock-in maîtrisé via règles de design.',
+          'Changement de fournisseur praticable et planifié.'
+        ],
+        es: [
+          'No se identifica el lock-in.',
+          'Somos conscientes, pero no actuamos.',
+          'Usamos algunos estándares abiertos o abstracción.',
+          'El lock-in se gestiona con reglas claras de diseño.',
+          'Cambiar de proveedor es práctico y planificado.'
+        ]
+      }
+    },
+    {
+      id: 'Q6',
+      label: { en:'Operational autonomy', fr:'Autonomie opérationnelle', es:'Autonomía operativa' },
+      title: {
+        en: 'Can we run and recover without the provider?',
+        fr: 'Pouvons-nous opérer et restaurer sans le fournisseur ?',
+        es: '¿Podemos operar y recuperar sin el proveedor?'
+      },
+      hint: {
+        en: 'Run/operate/restore capability during incidents or provider disruption.',
+        fr: 'Capacité à opérer/restaurer lors d’incidents ou disruption fournisseur.',
+        es: 'Capacidad de operar y recuperar durante incidentes o interrupción del proveedor.'
+      },
+      levels: {
+        en: [
+          'Operations rely fully on the provider.',
+          'Internal capability is limited.',
+          'We operate, but some critical dependencies remain.',
+          'We can operate and recover critical services.',
+          'We can operate even during provider disruption.'
+        ],
+        fr: [
+          'Opérations entièrement dépendantes du fournisseur.',
+          'Capacité interne limitée.',
+          'Opéré en partie, dépendances critiques persistantes.',
+          'Capacité d’opérer et de restaurer les services critiques.',
+          'Capacité d’opérer même en cas de disruption fournisseur.'
+        ],
+        es: [
+          'Las operaciones dependen totalmente del proveedor.',
+          'La capacidad interna es limitada.',
+          'Operamos, pero persisten dependencias críticas.',
+          'Podemos operar y recuperar servicios críticos.',
+          'Podemos operar incluso con interrupción del proveedor.'
+        ]
+      }
+    },
+    {
+      id: 'Q7',
+      label: { en:'Dependencies & supply chain', fr:'Dépendances & supply chain', es:'Dependencias y cadena de suministro' },
+      title: {
+        en: 'Do we know our critical dependencies and supply chain?',
+        fr: 'Connaissons-nous nos dépendances critiques et la supply chain ?',
+        es: '¿Conocemos nuestras dependencias críticas y la cadena de suministro?'
+      },
+      hint: {
+        en: 'Subcontractors, support chains, managed services, OSS components, and concentration risk.',
+        fr: 'Sous-traitants, support, services managés, composants OSS et risque de concentration.',
+        es: 'Subcontratistas, soporte, servicios gestionados, OSS y riesgo de concentración.'
+      },
+      levels: {
+        en: [
+          'Dependencies are not known.',
+          'We have an informal list of key suppliers.',
+          'We mapped some technical dependencies only.',
+          'We mapped tech + ops + support chains end-to-end.',
+          'We manage dependency risk with disruption scenarios.'
+        ],
+        fr: [
+          'Dépendances inconnues.',
+          'Liste informelle des fournisseurs clés.',
+          'Cartographie partielle (technique seulement).',
+          'Cartographie end-to-end (tech + ops + support).',
+          'Gestion du risque avec scénarios de rupture.'
+        ],
+        es: [
+          'Las dependencias no están identificadas.',
+          'Tenemos una lista informal de proveedores clave.',
+          'Mapeamos solo algunas dependencias técnicas.',
+          'Mapeamos end-to-end (tecnología + ops + soporte).',
+          'Gestionamos el riesgo con escenarios de interrupción.'
+        ]
+      }
+    },
+    {
+      id: 'Q8',
+      label: { en:'Auditability & evidence', fr:'Auditabilité & preuves', es:'Auditabilidad y evidencia' },
+      title: {
+        en: 'Can we prove sovereignty with evidence?',
+        fr: 'Pouvons-nous démontrer la souveraineté par des preuves ?',
+        es: '¿Podemos demostrar la soberanía con evidencia?'
+      },
+      hint: {
+        en: 'Auditability, logs, attestations, access traceability, and SBOM where relevant.',
+        fr: 'Auditabilité, logs, attestations, traçabilité d’accès et SBOM si pertinent.',
+        es: 'Auditoría, logs, atestaciones, trazabilidad de acceso y SBOM cuando aplique.'
+      },
+      levels: {
+        en: [
+          'We cannot prove sovereignty.',
+          'Evidence is limited and vendor-driven.',
+          'Evidence exists, but is incomplete or hard to produce.',
+          'Evidence is strong and independently auditable.',
+          'Evidence is continuous and automated.'
+        ],
+        fr: [
+          'Impossible de prouver la souveraineté.',
+          'Preuves limitées et surtout fournies par le fournisseur.',
+          'Preuves existantes mais incomplètes ou difficiles à produire.',
+          'Preuves solides et auditables indépendamment.',
+          'Preuves continues et automatisées.'
+        ],
+        es: [
+          'No podemos demostrar la soberanía.',
+          'La evidencia es limitada y depende del proveedor.',
+          'Existe evidencia, pero es incompleta o difícil de producir.',
+          'La evidencia es sólida y auditable de forma independiente.',
+          'La evidencia es continua y automatizada.'
+        ]
+      }
+    },
+    {
+      id: 'Q9',
+      label: { en:'Security controls', fr:'Contrôles de sécurité', es:'Controles de seguridad' },
+      title: {
+        en: 'Do we control IAM, keys, and monitoring?',
+        fr: 'Contrôlons-nous IAM, clés et monitoring ?',
+        es: '¿Controlamos IAM, llaves y monitoreo?'
+      },
+      hint: {
+        en: 'Identity, key custody, policy enforcement, and independent observability.',
+        fr: 'Identités, custody des clés, enforcement des politiques, observabilité indépendante.',
+        es: 'Identidad, custodia de llaves, enforcement de políticas y observabilidad independiente.'
+      },
+      levels: {
+        en: [
+          'Provider controls IAM/keys/monitoring.',
+          'We have limited visibility or control.',
+          'We control some parts (keys, identities, or logs).',
+          'We control IAM, keys, and monitoring end-to-end.',
+          'Control is designed to be sovereign by default.'
+        ],
+        fr: [
+          'Le fournisseur contrôle IAM/clés/monitoring.',
+          'Visibilité ou contrôle limités.',
+          'Contrôle partiel (clés, identités ou logs).',
+          'Contrôle end-to-end IAM/clés/monitoring.',
+          'Contrôle conçu pour être souverain par défaut.'
+        ],
+        es: [
+          'El proveedor controla IAM/llaves/monitoreo.',
+          'Tenemos visibilidad o control limitados.',
+          'Controlamos algunas partes (llaves, identidades o logs).',
+          'Controlamos IAM, llaves y monitoreo end-to-end.',
+          'El control está diseñado para ser soberano por defecto.'
+        ]
+      }
+    },
+    {
+      id: 'Q10',
+      label: { en:'Capabilities & decision', fr:'Capacités & décision', es:'Capacidades y decisión' },
+      title: {
+        en: 'Do we have skills and governance to decide independently?',
+        fr: 'Avons-nous les compétences et la gouvernance pour décider de manière indépendante ?',
+        es: '¿Tenemos capacidades y gobernanza para decidir de forma independiente?'
+      },
+      hint: {
+        en: 'Internal capability to arbitrate suppliers and architecture without structural dependency.',
+        fr: 'Capacité interne à arbitrer fournisseurs et architecture sans dépendance structurelle.',
+        es: 'Capacidad interna para decidir sobre proveedores y arquitectura sin dependencia estructural.'
+      },
+      levels: {
+        en: [
+          'Decisions are outsourced by default.',
+          'Governance exists, but vendor dependence is high.',
+          'Governance exists, skills are uneven.',
+          'We have the skills to make informed decisions.',
+          'We decide fast with strong internal capability.'
+        ],
+        fr: [
+          'Décisions externalisées par défaut.',
+          'Gouvernance existante, dépendance élevée aux fournisseurs.',
+          'Gouvernance existante, compétences inégales.',
+          'Compétences pour décider de façon éclairée.',
+          'Décisions rapides avec forte capacité interne.'
+        ],
+        es: [
+          'Las decisiones se externalizan por defecto.',
+          'Hay gobernanza, pero la dependencia es alta.',
+          'Hay gobernanza, pero las capacidades son irregulares.',
+          'Tenemos capacidades para decidir con criterio.',
+          'Decidimos rápido con fuerte capacidad interna.'
+        ]
+      }
+    },
+  ];
+
+  // =======================
+  // State
+  // =======================
+  const STORAGE_KEY = 'sovereignty_questionnaire_v4_nojson';
+  let lang = 'en';
+  let idx = 0;
+  let mode = 'quiz'; // quiz | summary
+  const scores = {}; // {Q1:0..4}
+
+  // =======================
+  // DOM
+  // =======================
+  const elBody = document.getElementById('body');
+  const elStepNav = document.getElementById('stepNav');
+  const elCompletionLine = document.getElementById('completionLine');
+  const elCompletionSub = document.getElementById('completionSub');
+  const elSaveBtn = document.getElementById('saveBtn');
+  const elTitle = document.getElementById('appTitle');
+
+  const elLangBtn = document.getElementById('langBtn');
+  const elLangMenu = document.getElementById('langMenu');
+
+  // =======================
+  // Helpers
+  // =======================
+  function t(){ return STR[lang]; }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function isAnswered(qid){
+    const v = scores[qid];
+    return (v===0||v===1||v===2||v===3||v===4);
+  }
+
+  function completionPct(){
+    const answered = QUESTIONS.filter(q=>isAnswered(q.id)).length;
+    return Math.round((answered / QUESTIONS.length) * 100);
+  }
+
+  function updateCompletionUI(){
+    const pct = completionPct();
+    const status = (pct===100) ? t().completed : t().inProgress;
+    elCompletionLine.textContent = t().doneLine(pct, status);
+    elCompletionSub.textContent = t().savedSub;
+    elSaveBtn.textContent = t().save;
+  }
+
+  function buildStepNav(){
+    elStepNav.innerHTML = QUESTIONS.map((q, i)=>{
+      const done = isAnswered(q.id);
+      const active = (mode==='quiz' && i===idx);
+      const cls = `step ${done ? 'done':''} ${active ? 'active':''}`;
+      const badgeCls = `badge ${done?'done':(active?'active':'')}`;
+      const badgeText = done ? '✓' : (i+1);
+      const label = q.label[lang];
+
+      return `
+        <div class="${cls}" onclick="goto(${i})" role="button" tabindex="0" aria-label="${escapeHtml(t().stepsAria(label))}">
+          <div class="stepTop">
+            <div class="stepLabel">${escapeHtml(label)}</div>
+            <div class="${badgeCls}">${badgeText}</div>
+          </div>
+          <div class="stepBar"><div class="fill"></div></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // =======================
+  // Language switching
+  // =======================
+  function closeLangMenu(){ elLangMenu.classList.remove('open'); }
+  function toggleLangMenu(){ elLangMenu.classList.toggle('open'); }
+
+  function normalizeLang(l){
+    if(l === 'fr') return 'fr';
+    if(l === 'es') return 'es';
+    return 'en';
+  }
+
+  function setLang(nextLang){
+    lang = normalizeLang(nextLang);
+    document.documentElement.lang = lang;
+    elLangBtn.innerHTML = `${lang.toUpperCase()} <span class="caret"></span>`;
+    elTitle.textContent = t().appTitle;
+    closeLangMenu();
+    saveLocal(true);
+    render();
+  }
+
+  // Expose to inline onclick
+  window.setLang = setLang;
+  window.goto = goto;
+  window.pick = pick;
+  window.next = next;
+  window.prev = prev;
+  window.restart = restart;
+  window.saveLocal = saveLocal;
+
+  elLangBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    toggleLangMenu();
+  });
+  document.addEventListener('click', ()=> closeLangMenu());
+
+  // =======================
+  // Render
+  // =======================
+  function render(){
+    buildStepNav();
+    updateCompletionUI();
+
+    if(mode==='summary'){
+      const s = buildSynthesis();
+      const {avg, total, sealLabel, sealDesc, weightedPct, objectiveScores, criticalViolations, roadmap} = s;
+      const arcOffset = 314 - Math.round(314*(weightedPct/100));
+
+      elBody.innerHTML = `
+        <div class="qNumber">${escapeHtml(t().results)}</div>
+        <div class="qTitle">${escapeHtml(t().summaryTitle)}</div>
+        <p class="qHint">${escapeHtml(t().summaryIntro)}</p>
+
+        <div class="summaryGrid">
+          <div class="panel">
+            <div class="panelTitle">
+              <h3>${escapeHtml(t().overallScore)}</h3>
+              <span class="sealPill">${escapeHtml(sealLabel)}</span>
+            </div>
+            <div class="scoreHero">
+              <div class="scoreLogo">SOV</div>
+              <div>
+                <p class="scoreBig">${weightedPct}%</p>
+                <div class="scoreSub">${escapeHtml(t().weightedExplain(weightedPct, avg.toFixed(1), total))}</div>
+              </div>
+            </div>
+            <div class="gaugeWrap">
+              <svg class="gauge" viewBox="0 0 120 120" aria-label="Overall score gauge">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#eef2f7" stroke-width="12" />
+                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-2)" stroke-width="12" stroke-linecap="round"
+                        transform="rotate(-90 60 60)" stroke-dasharray="314" stroke-dashoffset="${arcOffset}" />
+                <text x="60" y="58" text-anchor="middle" font-size="18" font-weight="950" fill="#111827">${weightedPct}%</text>
+                <text x="60" y="76" text-anchor="middle" font-size="10" font-weight="800" fill="#6b7280">${escapeHtml(t().weightedLabel)}</text>
+              </svg>
+              <div class="gaugeText">
+                <b>${escapeHtml(t().interpretation)}</b>
+                <div style="margin-top:6px">${escapeHtml(sealDesc)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panelTitle">
+              <h3>${escapeHtml(t().breakdown)}</h3>
+              <span class="sealPill" style="background:rgba(91,33,182,.06)">${escapeHtml(t().nowNextGap)}</span>
+            </div>
+            <div class="breakdown">
+              ${objectiveScores.map(o=>{
+                const pct = Math.round((o.now/4)*100);
+                return `
+                  <div class="barRow">
+                    <div class="barLbl">${escapeHtml(o.name)}</div>
+                    <div class="bar"><div class="barFill" style="width:${pct}%"></div></div>
+                    <div class="barVal">${o.now.toFixed(1)}</div>
+                  </div>
+                  <div style="margin:-6px 0 8px 0;color:var(--muted);font-size:12.5px;line-height:1.35">
+                    ${escapeHtml(t().weight)} ${o.weight}% · Next ${o.next} · Gap ${o.gap.toFixed(1)}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        ${criticalViolations.length ? `
+          <div class="divider"></div>
+          <div class="violations">
+            <h3>${escapeHtml(t().critical)}</h3>
+            <p>${escapeHtml(t().criticalText)}</p>
+            <ul>
+              ${criticalViolations.map(v=>`<li><b>${escapeHtml(v.name)}</b> — ${escapeHtml(v.qid)} (score ${v.score})</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+
+        <div class="divider"></div>
+
+        <div class="roadmap">
+          <h3>${escapeHtml(t().roadmap)}</h3>
+          <div class="timeline">
+            <div class="stage">
+              <div class="stageTop"><b>${escapeHtml(t().days0_30)}</b><span class="stageTag">${escapeHtml(t().quickWins)}</span></div>
+              <ul>${roadmap.quick.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+            </div>
+            <div class="stage">
+              <div class="stageTop"><b>${escapeHtml(t().days30_90)}</b><span class="stageTag">${escapeHtml(t().stabilize)}</span></div>
+              <ul>${roadmap.stabilize.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+            </div>
+            <div class="stage">
+              <div class="stageTop"><b>${escapeHtml(t().months3_6)}</b><span class="stageTag">${escapeHtml(t().deploy)}</span></div>
+              <ul>${roadmap.scale.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+            </div>
+            <div class="stage">
+              <div class="stageTop"><b>${escapeHtml(t().months6_12)}</b><span class="stageTag">${escapeHtml(t().optimize)}</span></div>
+              <ul>${roadmap.optimize.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="navRow">
+          <span class="note">${escapeHtml(t().summaryIntro)}</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" onclick="restart()">${escapeHtml(t().restart)}</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // quiz
+    const q = QUESTIONS[idx];
+    const qLabel = q.label[lang];
+    const qTitle = q.title[lang];
+    const qHint = q.hint[lang];
+    const levels = q.levels[lang];
+
+    elBody.innerHTML = `
+      <div class="qNumber">${escapeHtml(qLabel)} · ${escapeHtml(t().questionOf(idx+1, QUESTIONS.length))}</div>
+      <div class="qTitle">${escapeHtml(qTitle)}</div>
+      <p class="qHint">${escapeHtml(qHint)}</p>
+
+      <div class="choiceList" role="radiogroup" aria-label="Maturity choices">
+        ${levels.map((desc, score)=>{
+          const selected = (scores[q.id] === score);
+          return `
+            <div class="choiceItem ${selected?'selected':''}" onclick="pick('${q.id}', ${score})" role="radio" aria-checked="${selected}">
+              <div class="radio"></div>
+              <div class="choiceText">
+                <div class="choiceDesc"><span class="pillScore">${score}</span> <b>${escapeHtml(desc)}</b></div>
+                <div class="note">${escapeHtml(t().level(score))}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="navRow">
+        <span class="note" id="validationNote">${isAnswered(q.id) ? '' : escapeHtml(t().selectToContinue)}</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="prev()" ${idx===0?'disabled':''}>${escapeHtml(t().previous)}</button>
+          <button class="btn btnPrimary" onclick="next()" ${isAnswered(q.id)?'':'disabled'}>${escapeHtml(idx===QUESTIONS.length-1? t().finish : t().next)}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // =======================
+  // Actions
+  // =======================
+  function pick(qid, score){ scores[qid] = score; render(); }
+
+  function next(){
+    const q = QUESTIONS[idx];
+    if(!isAnswered(q.id)) return;
+    if(idx < QUESTIONS.length - 1){ idx++; render(); }
+    else { mode = 'summary'; render(); }
+  }
+
+  function prev(){ if(idx > 0){ idx--; render(); } }
+
+  function goto(i){ if(mode==='summary') return; idx = Math.max(0, Math.min(QUESTIONS.length-1, i)); render(); }
+
+  function restart(){ idx = 0; mode = 'quiz'; for(const k of Object.keys(scores)) delete scores[k]; saveLocal(true); render(); }
+
+  // =======================
+  // Persistence
+  // =======================
+  function saveLocal(silent=false){
+    const payload = { version:'4.0', saved_at:new Date().toISOString(), idx, mode, lang, scores };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    if(!silent){
+      elCompletionSub.textContent = t().savedToast;
+      setTimeout(()=>{ elCompletionSub.textContent = t().savedSub; }, 1800);
+    }
+  }
+
+  function loadLocal(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return;
+      const obj = JSON.parse(raw);
+      if(obj && obj.scores){
+        Object.assign(scores, obj.scores);
+        idx = typeof obj.idx === 'number' ? obj.idx : 0;
+        mode = obj.mode === 'summary' ? 'summary' : 'quiz';
+        lang = normalizeLang(obj.lang);
+      }
+    }catch(e){/* ignore */}
+  }
+
+  // =======================
+  // Synthesis
+  // =======================
+  function buildSynthesis(){
+    const objectives = [
+      { name: (lang==='fr' ? 'Souveraineté stratégique' : (lang==='es' ? 'Soberanía estratégica' : 'Strategic sovereignty')), weight:15, qids:['Q1','Q10'] },
+      { name: (lang==='fr' ? 'Juridique & juridiction' : (lang==='es' ? 'Legal y jurisdiccional' : 'Legal & jurisdictional')), weight:10, qids:['Q3'] },
+      { name: (lang==='fr' ? 'Données (résidence & cycle de vie)' : (lang==='es' ? 'Datos (residencia y ciclo de vida)' : 'Data (residency & lifecycle)')), weight:10, qids:['Q2'] },
+      { name: (lang==='fr' ? 'Souveraineté opérationnelle' : (lang==='es' ? 'Soberanía operativa' : 'Operational sovereignty')), weight:15, qids:['Q6'] },
+      { name: (lang==='fr' ? 'Souveraineté supply chain' : (lang==='es' ? 'Soberanía de cadena de suministro' : 'Supply chain sovereignty')), weight:20, qids:['Q7'] },
+      { name: (lang==='fr' ? 'Technologie (portabilité & lock-in)' : (lang==='es' ? 'Tecnología (portabilidad y lock-in)' : 'Technology (portability & lock-in)')), weight:20, qids:['Q4','Q5'] },
+      { name: (lang==='fr' ? 'Sécurité, assurance & preuves' : (lang==='es' ? 'Seguridad, aseguramiento y evidencia' : 'Security, assurance & evidence')), weight:10, qids:['Q8','Q9'] },
+    ];
+
+    const vals = QUESTIONS.map(q => (scores[q.id] ?? null)).filter(v => v !== null);
+    const total = vals.reduce((a,b)=>a+b,0);
+    const avg = vals.length ? total / vals.length : 0;
+
+    const sealInfo = (lang==='fr') ? {
+      0: { label:'SEAL-0', desc:'Contrôle et dépendances critiques non maîtrisés.' },
+      1: { label:'SEAL-1', desc:'Alignement juridique minimal, contrôle opérationnel limité.' },
+      2: { label:'SEAL-2', desc:'Meilleure maîtrise des données, dépendances critiques persistantes.' },
+      3: { label:'SEAL-3', desc:'Résilience et autonomie significatives, dépendances marginales.' },
+      4: { label:'SEAL-4', desc:'Souveraineté élevée, contrôle end-to-end sur les éléments critiques.' },
+    } : (lang==='es') ? {
+      0: { label:'SEAL-0', desc:'Dependencias críticas y control no gestionados.' },
+      1: { label:'SEAL-1', desc:'Alineación legal mínima, control operativo limitado.' },
+      2: { label:'SEAL-2', desc:'Mejor postura de datos, pero persisten dependencias críticas.' },
+      3: { label:'SEAL-3', desc:'Resiliencia y autonomía relevantes; dependencias marginales.' },
+      4: { label:'SEAL-4', desc:'Alta soberanía con control end-to-end de elementos críticos.' },
+    } : {
+      0: { label:'SEAL-0', desc:'Critical dependencies and control are not managed.' },
+      1: { label:'SEAL-1', desc:'Minimal legal alignment, limited operational control.' },
+      2: { label:'SEAL-2', desc:'Better data posture, but critical dependencies remain.' },
+      3: { label:'SEAL-3', desc:'Meaningful resilience and autonomy; dependencies are marginal.' },
+      4: { label:'SEAL-4', desc:'High sovereignty with end-to-end control over critical elements.' },
+    };
+
+    const sealBand = Math.max(0, Math.min(4, Math.round(avg)));
+
+    const objectiveScores = objectives.map(o => {
+      const qs = o.qids.map(id => scores[id]).filter(v => v===0||v===1||v===2||v===3||v===4);
+      const now = qs.length ? (qs.reduce((a,b)=>a+b,0) / qs.length) : 0;
+      const next = Math.min(4, Math.ceil(now + 0.75));
+      const gap = Math.max(0, next - now);
+      return { name:o.name, weight:o.weight, now, next, gap };
+    });
+
+    const weightedScore = objectiveScores.reduce((sum, o) => sum + (o.weight * (o.now/4)), 0);
+    const weightedPct = Math.round(weightedScore);
+
+    const fundamentals = (lang==='fr') ? [
+      { qid:'Q2', name:'Résidence et cycle de vie des données' },
+      { qid:'Q3', name:'Contrôles d’accès extraterritorial' },
+      { qid:'Q9', name:'Contrôle IAM / clés / monitoring' },
+    ] : (lang==='es') ? [
+      { qid:'Q2', name:'Residencia y ciclo de vida de datos' },
+      { qid:'Q3', name:'Controles de acceso extraterritorial' },
+      { qid:'Q9', name:'Control de IAM/llaves/monitoreo' },
+    ] : [
+      { qid:'Q2', name:'Data residency & lifecycle' },
+      { qid:'Q3', name:'Extraterritorial access controls' },
+      { qid:'Q9', name:'Control of IAM/keys/monitoring' },
+    ];
+
+    const criticalViolations = fundamentals
+      .filter(f => (scores[f.qid] === 0 || scores[f.qid] === 1 || scores[f.qid] === 2))
+      .map(f => ({...f, score: scores[f.qid]}));
+
+    const roadmap = buildRoadmap({criticalViolations});
+
+    return {
+      avg,
+      total,
+      sealBand,
+      sealLabel: sealInfo[sealBand].label,
+      sealDesc: sealInfo[sealBand].desc,
+      weightedPct,
+      objectiveScores,
+      criticalViolations,
+      roadmap
+    };
+  }
+
+  function buildRoadmap({criticalViolations}){
+    const quick = [];
+    const stabilize = [];
+    const scale = [];
+    const optimize = [];
+
+    const isFr = (lang==='fr');
+    const isEs = (lang==='es');
+
+    if(criticalViolations.some(v=>v.qid==='Q2')) quick.push(isFr
+      ? 'Cartographier résidence + flux des données critiques (stockage, traitement, backup, DR, transferts).'
+      : isEs
+        ? 'Mapear residencia y flujos de datos críticos (almacenamiento, procesamiento, copias, DR, transferencias).'
+        : 'Map critical data residency and flows (storage, processing, backups, DR, transfers).'
+    );
+    if(criticalViolations.some(v=>v.qid==='Q3')) quick.push(isFr
+      ? 'Ajouter des clauses souveraineté (support, sous-traitance, accès gouvernemental) + checklist exposition extraterritoriale.'
+      : isEs
+        ? 'Agregar cláusulas de soberanía (soporte, subcontratación, acceso gubernamental) + checklist de exposición extraterritorial.'
+        : 'Add sovereignty clauses (support location, subcontracting, government access) + an extraterritorial exposure checklist.'
+    );
+    if(criticalViolations.some(v=>v.qid==='Q9')) quick.push(isFr
+      ? 'Clarifier custody des clés/IAM et activer break-glass + journalisation minimale indépendante.'
+      : isEs
+        ? 'Aclarar custodia de llaves/IAM y habilitar break-glass + logging base independiente.'
+        : 'Clarify key/IAM custody and enable break-glass + independent baseline logging.'
+    );
+
+    quick.push(isFr
+      ? 'Identifier le Top 5 des dépendances critiques et documenter les “hard dependencies” (régions, support, opérations).'
+      : isEs
+        ? 'Identificar las 5 dependencias críticas y documentar dependencias duras (regiones, soporte, operaciones).'
+        : 'Identify the top 5 critical dependencies and document hard dependencies (regions, support, operations).'
+    );
+    quick.push(isFr
+      ? 'Choisir 1 workload phare et produire un exit plan réaliste (cible, contraintes, coûts, délais).'
+      : isEs
+        ? 'Elegir una carga clave y crear un plan de salida realista (objetivo, restricciones, costo, plazo).'
+        : 'Select one flagship workload and draft a realistic exit plan (target, constraints, cost, timeline).'
+    );
+
+    stabilize.push(isFr
+      ? 'Formaliser la gouvernance (decision rights) et des guardrails d’architecture pour la souveraineté.'
+      : isEs
+        ? 'Formalizar la gobernanza de soberanía (derechos de decisión) y guardrails de arquitectura.'
+        : 'Formalize sovereignty governance (decision rights) and architecture guardrails.'
+    );
+    stabilize.push(isFr
+      ? 'Construire un registre des dépendances (incl. sous-traitants et composants OSS critiques).'
+      : isEs
+        ? 'Construir un registro de dependencias (incl. subcontratistas y componentes OSS críticos).'
+        : 'Build a dependency register (including subcontractors and critical OSS components).'
+    );
+    stabilize.push(isFr
+      ? 'Tester un scénario d’indisponibilité fournisseur (tabletop) + runbooks de reprise.'
+      : isEs
+        ? 'Ejecutar un tabletop de interrupción del proveedor y validar runbooks de recuperación.'
+        : 'Run a provider-disruption tabletop exercise and validate recovery runbooks.'
+    );
+
+    scale.push(isFr
+      ? 'Réaliser un exercice de réversibilité (pilot migration / relocation DR) et capitaliser les leçons apprises.'
+      : isEs
+        ? 'Ejecutar un ejercicio de reversibilidad (migración piloto / reubicación DR) y capturar aprendizajes.'
+        : 'Execute one reversibility exercise (pilot migration / DR relocation) and capture lessons learned.'
+    );
+    scale.push(isFr
+      ? 'Déployer des contrôles de résidence par classe de données (policy + controls + monitoring).'
+      : isEs
+        ? 'Implementar controles de residencia por clase de datos (política + controles + monitoreo).'
+        : 'Implement residency controls by data class (policy + controls + monitoring).'
+    );
+    scale.push(isFr
+      ? 'Mettre en place un “evidence pack” (audit-ready) : logs, attestations, traçabilité accès, modèle de custody clés.'
+      : isEs
+        ? 'Crear un paquete de evidencia (audit-ready): logs, atestaciones, trazabilidad de acceso y custodia de llaves.'
+        : 'Build an audit-ready evidence pack: logs, attestations, access traceability, and key custody model.'
+    );
+
+    optimize.push(isFr
+      ? 'Intégrer la souveraineté au cycle procurement (RFP, évaluation, renouvellements, scorecards fournisseurs).'
+      : isEs
+        ? 'Integrar requisitos de soberanía en compras (RFP, evaluación, renovaciones, scorecards).'
+        : 'Embed sovereignty requirements into procurement (RFPs, evaluations, renewals, supplier scorecards).'
+    );
+    optimize.push(isFr
+      ? 'Réduire le risque de concentration : second sourcing d’une dépendance critique et validation d’autonomie opérationnelle.'
+      : isEs
+        ? 'Reducir riesgo de concentración: second-source una dependencia crítica y validar autonomía operativa.'
+        : 'Reduce concentration risk: second-source one critical dependency and validate operational autonomy.'
+    );
+    optimize.push(isFr
+      ? 'Automatiser la collecte de preuves et le reporting continu des contrôles souveraineté.'
+      : isEs
+        ? 'Automatizar la recolección de evidencia y el reporte continuo de controles de soberanía.'
+        : 'Automate evidence collection and continuous reporting for sovereignty controls.'
+    );
+
+    const uniq = (arr) => Array.from(new Set(arr));
+    return {
+      quick: uniq(quick).slice(0,5),
+      stabilize: uniq(stabilize).slice(0,5),
+      scale: uniq(scale).slice(0,5),
+      optimize: uniq(optimize).slice(0,5)
+    };
+  }
+
+  // =======================
+  // Boot
+  // =======================
+  function loadLocal(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return;
+      const obj = JSON.parse(raw);
+      if(obj && obj.scores){
+        Object.assign(scores, obj.scores);
+        idx = typeof obj.idx === 'number' ? obj.idx : 0;
+        mode = obj.mode === 'summary' ? 'summary' : 'quiz';
+        lang = normalizeLang(obj.lang);
+      }
+    }catch(e){/* ignore */}
+  }
+
+  loadLocal();
+  setLang(lang);
+  render();
+
+  // Light self-test
+  (function(){
+    try{
+      const tmp = {};
+      QUESTIONS.forEach((q,i)=> tmp[q.id] = i%5);
+      const old = {...scores};
+      Object.assign(scores, tmp);
+      const s = buildSynthesis();
+      console.assert(typeof s.weightedPct === 'number', 'weightedPct should be number');
+      console.assert(Array.isArray(s.objectiveScores), 'objectiveScores should be array');
+      for(const k of Object.keys(scores)) delete scores[k];
+      Object.assign(scores, old);
+    }catch(e){console.error('Self-test failed', e)}
+  })();
+</script>
+</body>
+</html>
