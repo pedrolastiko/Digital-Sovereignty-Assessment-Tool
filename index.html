@@ -243,9 +243,10 @@
     .scoreBig{font-size:32px;font-weight:1000;line-height:1;margin:0}
     .scoreSub{margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.35}
 
-    .gaugeWrap{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px}
-    .gauge{width:140px;height:140px;flex:0 0 auto}
-    .gaugeText{font-size:12.5px;color:var(--muted);line-height:1.35}
+    .gaugeWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;margin-top:14px}
+    .gauge{width:200px;height:200px;flex:0 0 auto}
+    .gaugeText{font-size:13px;color:var(--muted);line-height:1.4;text-align:center;max-width:400px}
+    .gaugeText b{display:block;color:#111827;font-size:14px;margin-bottom:4px}
 
     .breakdown{display:flex;flex-direction:column;gap:10px}
     .barRow{display:grid;grid-template-columns:240px 1fr 56px;gap:10px;align-items:center}
@@ -371,6 +372,7 @@
       save: 'Save',
       level: (s)=>`Level ${s}`,
       weightedLabel: 'Weighted',
+      identifiedLevel: 'Identified sovereignty level',
       weightedExplain: (_pct,avg,total)=>`Weighted score (categories + weights). Raw average: ${avg} / 4 · Total: ${total} / 40.`,
     },
     fr: {
@@ -409,6 +411,7 @@
       save: 'Sauvegarder',
       level: (s)=>`Niveau ${s}`,
       weightedLabel: 'Pondéré',
+      identifiedLevel: 'Niveau de souveraineté identifié',
       weightedExplain: (_pct,avg,total)=>`Score pondéré (catégories + poids). Moyenne brute: ${avg} / 4 · Total: ${total} / 40.`,
     },
     es: {
@@ -447,6 +450,7 @@
       save: 'Guardar',
       level: (s)=>`Nivel ${s}`,
       weightedLabel: 'Ponderado',
+      identifiedLevel: 'Nivel de soberanía identificado',
       weightedExplain: (_pct,avg,total)=>`Puntuación ponderada (categorías + pesos). Media bruta: ${avg} / 4 · Total: ${total} / 40.`,
     }
   };
@@ -950,6 +954,7 @@
       const s = buildSynthesis();
       const {avg, total, sealLabel, sealDesc, weightedPct, objectiveScores, criticalViolations, roadmap} = s;
       const arcOffset = 314 - Math.round(314*(weightedPct/100));
+      const scoreColor = getScoreColor(weightedPct);
 
       elBody.innerHTML = `
         <div class="qNumber">${escapeHtml(t().results)}</div>
@@ -972,14 +977,14 @@
             <div class="gaugeWrap">
               <svg class="gauge" viewBox="0 0 120 120" aria-label="Overall score gauge">
                 <circle cx="60" cy="60" r="50" fill="none" stroke="#eef2f7" stroke-width="12" />
-                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-2)" stroke-width="12" stroke-linecap="round"
+                <circle cx="60" cy="60" r="50" fill="none" stroke="${scoreColor}" stroke-width="12" stroke-linecap="round"
                         transform="rotate(-90 60 60)" stroke-dasharray="314" stroke-dashoffset="${arcOffset}" />
-                <text x="60" y="58" text-anchor="middle" font-size="18" font-weight="950" fill="#111827">${weightedPct}%</text>
+                <text x="60" y="58" text-anchor="middle" font-size="18" font-weight="950" fill="${scoreColor}">${weightedPct}%</text>
                 <text x="60" y="76" text-anchor="middle" font-size="10" font-weight="800" fill="#6b7280">${escapeHtml(t().weightedLabel)}</text>
               </svg>
               <div class="gaugeText">
-                <b>${escapeHtml(t().interpretation)}</b>
-                <div style="margin-top:6px">${escapeHtml(sealDesc)}</div>
+                <b>${escapeHtml(t().identifiedLevel)}: ${escapeHtml(sealLabel)}</b>
+                <div>${escapeHtml(t().interpretation)}: ${escapeHtml(sealDesc)}</div>
               </div>
             </div>
           </div>
@@ -1154,23 +1159,23 @@
     const avg = vals.length ? total / vals.length : 0;
 
     const sealInfo = (lang==='fr') ? {
-      0: { label:'SEAL-0', desc:'Contrôle et dépendances critiques non maîtrisés.' },
-      1: { label:'SEAL-1', desc:'Alignement juridique minimal, contrôle opérationnel limité.' },
-      2: { label:'SEAL-2', desc:'Meilleure maîtrise des données, dépendances critiques persistantes.' },
-      3: { label:'SEAL-3', desc:'Résilience et autonomie significatives, dépendances marginales.' },
-      4: { label:'SEAL-4', desc:'Souveraineté élevée, contrôle end-to-end sur les éléments critiques.' },
+      0: { label:'SOV-0', desc:'Contrôle et dépendances critiques non maîtrisés.' },
+      1: { label:'SOV-1', desc:'Alignement juridique minimal, contrôle opérationnel limité.' },
+      2: { label:'SOV-2', desc:'Meilleure maîtrise des données, dépendances critiques persistantes.' },
+      3: { label:'SOV-3', desc:'Résilience et autonomie significatives, dépendances marginales.' },
+      4: { label:'SOV-4', desc:'Souveraineté élevée, contrôle end-to-end sur les éléments critiques.' },
     } : (lang==='es') ? {
-      0: { label:'SEAL-0', desc:'Dependencias críticas y control no gestionados.' },
-      1: { label:'SEAL-1', desc:'Alineación legal mínima, control operativo limitado.' },
-      2: { label:'SEAL-2', desc:'Mejor postura de datos, pero persisten dependencias críticas.' },
-      3: { label:'SEAL-3', desc:'Resiliencia y autonomía relevantes; dependencias marginales.' },
-      4: { label:'SEAL-4', desc:'Alta soberanía con control end-to-end de elementos críticos.' },
+      0: { label:'SOV-0', desc:'Dependencias críticas y control no gestionados.' },
+      1: { label:'SOV-1', desc:'Alineación legal mínima, control operativo limitado.' },
+      2: { label:'SOV-2', desc:'Mejor postura de datos, pero persisten dependencias críticas.' },
+      3: { label:'SOV-3', desc:'Resiliencia y autonomía relevantes; dependencias marginales.' },
+      4: { label:'SOV-4', desc:'Alta soberanía con control end-to-end de elementos críticos.' },
     } : {
-      0: { label:'SEAL-0', desc:'Critical dependencies and control are not managed.' },
-      1: { label:'SEAL-1', desc:'Minimal legal alignment, limited operational control.' },
-      2: { label:'SEAL-2', desc:'Better data posture, but critical dependencies remain.' },
-      3: { label:'SEAL-3', desc:'Meaningful resilience and autonomy; dependencies are marginal.' },
-      4: { label:'SEAL-4', desc:'High sovereignty with end-to-end control over critical elements.' },
+      0: { label:'SOV-0', desc:'Critical dependencies and control are not managed.' },
+      1: { label:'SOV-1', desc:'Minimal legal alignment, limited operational control.' },
+      2: { label:'SOV-2', desc:'Better data posture, but critical dependencies remain.' },
+      3: { label:'SOV-3', desc:'Meaningful resilience and autonomy; dependencies are marginal.' },
+      4: { label:'SOV-4', desc:'High sovereignty with end-to-end control over critical elements.' },
     };
 
     const sealBand = Math.max(0, Math.min(4, Math.round(avg)));
@@ -1217,6 +1222,13 @@
       criticalViolations,
       roadmap
     };
+  }
+
+
+  function getScoreColor(weightedPct){
+    const safePct = Math.max(0, Math.min(100, Number(weightedPct) || 0));
+    const hue = Math.round((safePct / 100) * 120);
+    return `hsl(${hue} 78% 42%)`;
   }
 
   function buildRoadmap({criticalViolations}){
