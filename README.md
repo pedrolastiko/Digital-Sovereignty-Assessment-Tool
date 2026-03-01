@@ -1,58 +1,58 @@
 # Digital Sovereignty Assessment Tool
 
-Un questionnaire d'auto-évaluation de la souveraineté numérique, conçu pour **fonctionner 100 % en local dans le navigateur**.
+A self-assessment questionnaire for digital sovereignty, designed to run **100% locally in the browser**.
 
-## 🔒 Sécurité & confidentialité (point central)
+## 🔒 Security & Privacy (Core Principle)
 
-Ce projet est volontairement conçu pour un usage local afin de protéger les informations sensibles :
+This project is intentionally built for local use to protect sensitive information:
 
-- **Aucun backend requis**.
-- **Aucun appel réseau nécessaire** pour compléter le questionnaire.
-- **Aucune donnée n'est envoyée vers un serveur externe**.
-- Les réponses sont conservées uniquement dans le navigateur de l'utilisateur (stockage local), sur sa machine.
+- **No backend required**.
+- **No external network calls are needed** to complete the questionnaire.
+- **No data is sent to external servers**.
+- Responses are stored only in the user's browser (local storage), on the user's machine.
 
-En pratique : vos données restent sous votre contrôle, dans votre environnement.
+In short: your data stays under your control, in your own environment.
 
-## 🎯 Objectif
+## 🎯 Purpose
 
-L'outil permet d'évaluer la maturité d'une organisation sur plusieurs axes de souveraineté numérique (cloud, données, identité, infrastructure, conformité, etc.), puis de restituer un score et une synthèse.
+The tool helps evaluate an organization's digital sovereignty maturity across multiple dimensions (cloud, data, identity, infrastructure, compliance, etc.), then provides a score and summary.
 
-## 🧱 Stack technique
+## 🧱 Tech Stack
 
 - HTML
 - CSS
 - JavaScript (vanilla)
-- Application statique mono-page (`index.html`)
+- Single-page static app (`index.html`)
 
-## ▶️ Lancer le questionnaire en local
+## ▶️ Run Locally
 
-### Option 1 — ouverture directe
+### Option 1 — Open directly
 
-1. Cloner le dépôt.
-2. Ouvrir `index.html` dans votre navigateur.
+1. Clone the repository.
+2. Open `index.html` in your browser.
 
-### Option 2 — via un serveur local (recommandé pour un usage d'équipe)
+### Option 2 — Use a local server (recommended for team usage)
 
-Depuis la racine du projet :
+From the project root:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Puis ouvrir : `http://localhost:8000`
+Then open: `http://localhost:8000`
 
-## ✅ Cas d'usage recommandés
+## ✅ Recommended Use Cases
 
-- Ateliers d'évaluation en interne.
-- Contextes sensibles (RSSI, conformité, architecture, souveraineté des données).
-- Démonstrations où l'on veut garantir qu'aucune information ne quitte le poste utilisateur.
+- Internal assessment workshops.
+- Sensitive contexts (security, compliance, enterprise architecture, data sovereignty).
+- Demonstrations where you must ensure that no information leaves the user's device.
 
-## ⚠️ Bonnes pratiques
+## ⚠️ Good Practices
 
-- Exécuter l'outil sur un poste de confiance.
-- Éviter les extensions navigateur non maîtrisées dans les contextes sensibles.
-- Purger le stockage navigateur après usage si nécessaire.
+- Run the tool on a trusted workstation.
+- Avoid untrusted browser extensions in sensitive contexts.
+- Clear browser storage after use if required.
 
-## 📄 Licence
+## 📄 License
 
-Ce projet est distribué sous licence MIT. Voir le fichier `LICENSE`.
+This project is distributed under the MIT License. See `LICENSE`.
