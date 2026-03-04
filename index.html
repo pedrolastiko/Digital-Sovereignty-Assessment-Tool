@@ -230,10 +230,7 @@
     .bottomBar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--border);box-shadow:0 -10px 24px rgba(17,24,39,.08);}
     .bottomInner{max-width:1240px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
     .completion{font-weight:900;color:#374151}
-    .completion small{display:block;color:var(--muted);font-weight:800;margin-top:2px}
-
-    .saveBtn{border:none;background:var(--accent);color:#fff;font-weight:950;padding:10px 18px;border-radius:12px;cursor:pointer;}
-    .saveBtn:hover{filter:brightness(.98)}
+    .completion small{display:block;color:var(--muted);font-weight:700;font-size:11px;margin-top:2px}
 
     /* ====== SUMMARY ====== */
     .summaryGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
@@ -375,7 +372,6 @@
         <span id="completionLine">This section is 0% complete — In progress</span>
         <small id="completionSub">Answers are saved locally (browser).</small>
       </div>
-      <button class="saveBtn" id="saveBtn" onclick="saveLocal()">Save</button>
     </div>
   </div>
 
@@ -418,7 +414,6 @@
       completed: 'Completed',
       savedSub: 'Answers are saved locally (browser).',
       savedToast: 'Saved locally.',
-      save: 'Save',
       level: (s)=>`Level ${s}`,
       weightedLabel: 'Weighted',
       identifiedLevel: 'Identified sovereignty level',
@@ -458,7 +453,6 @@
       completed: 'Terminé',
       savedSub: 'Réponses sauvegardées localement (browser).',
       savedToast: 'Sauvegardé localement.',
-      save: 'Sauvegarder',
       level: (s)=>`Niveau ${s}`,
       weightedLabel: 'Pondéré',
       identifiedLevel: 'Niveau de souveraineté identifié',
@@ -498,7 +492,6 @@
       completed: 'Completado',
       savedSub: 'Las respuestas se guardan localmente (navegador).',
       savedToast: 'Guardado localmente.',
-      save: 'Guardar',
       level: (s)=>`Nivel ${s}`,
       weightedLabel: 'Ponderado',
       identifiedLevel: 'Nivel de soberanía identificado',
@@ -898,7 +891,6 @@
   const elStepNav = document.getElementById('stepNav');
   const elCompletionLine = document.getElementById('completionLine');
   const elCompletionSub = document.getElementById('completionSub');
-  const elSaveBtn = document.getElementById('saveBtn');
   const elTitle = document.getElementById('appTitle');
 
   const elLangBtn = document.getElementById('langBtn');
@@ -933,7 +925,6 @@
     const status = (pct===100) ? t().completed : t().inProgress;
     elCompletionLine.textContent = t().doneLine(pct, status);
     elCompletionSub.textContent = t().savedSub;
-    elSaveBtn.textContent = t().save;
   }
 
   function buildStepNav(){
@@ -999,6 +990,7 @@
   // Render
   // =======================
   function render(){
+    saveLocal(true);
     buildStepNav();
     updateCompletionUI();
 
