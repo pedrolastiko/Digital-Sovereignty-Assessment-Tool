@@ -246,7 +246,8 @@
     .sealPill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(91,33,182,.25);background:rgba(91,33,182,.06);padding:7px 10px;border-radius:999px;font-weight:950;color:var(--accent);font-size:12.5px}
 
     .scoreHero{display:flex;gap:14px;align-items:center}
-    .scoreLogo{width:48px;height:48px;border-radius:14px;background:rgba(227,25,55,.08);border:1px solid rgba(227,25,55,.25);display:grid;place-items:center;font-weight:950;color:var(--cgi-red);}
+    .scoreLogo{width:48px;height:48px;border-radius:14px;background:rgba(227,25,55,.08);border:1px solid rgba(227,25,55,.25);display:grid;place-items:center;color:var(--cgi-red);}
+    .scoreLogo svg{width:30px;height:30px;display:block}
     .scoreBig{font-size:32px;font-weight:1000;line-height:1;margin:0}
     .scoreSub{margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.35}
 
@@ -1021,7 +1022,9 @@
               <span class="sealPill">${escapeHtml(sealLabel)}</span>
             </div>
             <div class="scoreHero">
-              <div class="scoreLogo">SOV</div>
+              <div class="scoreLogo" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="136" height="136" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe-lock-icon lucide-globe-lock"><path d="M15.686 15A14.5 14.5 0 0 1 12 22a14.5 14.5 0 0 1 0-20 10 10 0 1 0 9.542 13"/><path d="M2 12h8.5"/><path d="M20 6V4a2 2 0 1 0-4 0v2"/><rect width="8" height="5" x="14" y="6" rx="1"/></svg>
+              </div>
               <div>
                 <p class="scoreBig">${weightedPct}%</p>
                 <div class="scoreSub">${escapeHtml(t().weightedExplain(weightedPct, avg.toFixed(1), total))}</div>
