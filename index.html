@@ -305,6 +305,18 @@
       .page{padding-left:12px;padding-right:12px;}
       .stepNavInner{padding-left:12px;padding-right:12px;grid-template-columns:repeat(2, minmax(0, 1fr));}
     }
+
+
+    @media print{
+      @page{size:A4; margin:12mm;}
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      body{background:#fff;}
+      .header,.bottomBar{display:none !important;}
+      .page{max-width:none;margin:0;padding:0;}
+      .card{border:none;box-shadow:none;border-radius:0;}
+      #summaryReport .navRow{display:none !important;}
+      #summaryReport{padding:0;}
+    }
   </style>
 </head>
 <body>
@@ -391,6 +403,7 @@
       deploy: 'Deploy',
       optimize: 'Optimize',
       restart: 'Restart',
+      exportPdf: 'Export PDF',
       doneLine: (pct,status)=>`This section is ${pct}% complete — ${status}`,
       inProgress: 'In progress',
       completed: 'Completed',
@@ -430,6 +443,7 @@
       deploy: 'Déployer',
       optimize: 'Optimiser',
       restart: 'Recommencer',
+      exportPdf: 'Exporter en PDF',
       doneLine: (pct,status)=>`Cette section est remplie à ${pct}% — ${status}`,
       inProgress: 'En cours',
       completed: 'Terminé',
@@ -469,6 +483,7 @@
       deploy: 'Desplegar',
       optimize: 'Optimizar',
       restart: 'Reiniciar',
+      exportPdf: 'Exportar PDF',
       doneLine: (pct,status)=>`Esta sección está completada al ${pct}% — ${status}`,
       inProgress: 'En curso',
       completed: 'Completado',
@@ -963,6 +978,7 @@
   window.prev = prev;
   window.restart = restart;
   window.saveLocal = saveLocal;
+  window.exportSummaryPdf = exportSummaryPdf;
 
   elLangBtn.addEventListener('click', (e)=>{
     e.stopPropagation();
@@ -984,6 +1000,7 @@
       const scoreColor = getScoreColor(weightedPct);
 
       elBody.innerHTML = `
+        <div id="summaryReport">
         <div class="qNumber">${escapeHtml(t().results)}</div>
         <div class="qTitle">${escapeHtml(t().summaryTitle)}</div>
         <p class="qHint">${escapeHtml(t().summaryIntro)}</p>
@@ -1090,8 +1107,10 @@
         <div class="navRow">
           <span class="note">${escapeHtml(t().summaryIntro)}</span>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btnPrimary" onclick="exportSummaryPdf()">${escapeHtml(t().exportPdf)}</button>
             <button class="btn" onclick="restart()">${escapeHtml(t().restart)}</button>
           </div>
+        </div>
         </div>
       `;
       return;
@@ -1151,6 +1170,11 @@
   function goto(i){ if(mode==='summary') return; idx = Math.max(0, Math.min(QUESTIONS.length-1, i)); render(); }
 
   function restart(){ idx = 0; mode = 'quiz'; for(const k of Object.keys(scores)) delete scores[k]; saveLocal(true); render(); }
+
+  function exportSummaryPdf(){
+    if(mode !== 'summary') return;
+    window.print();
+  }
 
   // =======================
   // Persistence
