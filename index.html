@@ -1184,7 +1184,7 @@
   // Persistence
   // =======================
   function saveLocal(silent=false){
-    const payload = { version:'4.0', saved_at:new Date().toISOString(), idx, mode, lang, scores };
+    const payload = { version:'4.0', saved_at:new Date().toISOString(), idx, mode, scores };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     if(!silent){
       elCompletionSub.textContent = t().savedToast;
@@ -1201,7 +1201,7 @@
         Object.assign(scores, obj.scores);
         idx = typeof obj.idx === 'number' ? obj.idx : 0;
         mode = obj.mode === 'summary' ? 'summary' : 'quiz';
-        lang = normalizeLang(obj.lang);
+        lang = 'en';
       }
     }catch(e){/* ignore */}
   }
@@ -1416,7 +1416,7 @@
         Object.assign(scores, obj.scores);
         idx = typeof obj.idx === 'number' ? obj.idx : 0;
         mode = obj.mode === 'summary' ? 'summary' : 'quiz';
-        lang = normalizeLang(obj.lang);
+        lang = 'en';
       }
     }catch(e){/* ignore */}
   }
