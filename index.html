@@ -342,7 +342,20 @@
     }
 
     .roadmap{border:1px solid var(--border);background:#fff;border-radius:16px;padding:14px}
-    .roadmap h3{margin:0 0 10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .roadmapHeader{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .roadmap h3{margin:0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .roadmapIcon{
+      width:32px;
+      height:32px;
+      flex:0 0 auto;
+      border-radius:10px;
+      border:1px solid rgba(91,33,182,.2);
+      background:rgba(91,33,182,.06);
+      color:var(--accent);
+      display:grid;
+      place-items:center;
+    }
+    .roadmapIcon svg{width:20px;height:20px;display:block}
     .timeline{display:grid;grid-template-columns:1fr;gap:10px}
 
     .levelDescriptions{margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
@@ -1278,7 +1291,17 @@
         <div class="divider"></div>
 
         <div class="roadmap">
-          <h3>${escapeHtml(t().roadmap)}</h3>
+          <div class="roadmapHeader">
+            <span class="roadmapIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 20C8.5 20 8.5 14 13 14C17.5 14 17.5 8 20 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 20h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M20 8l-2.4-2.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20 8l-2.4 2.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3>${escapeHtml(t().roadmap)}</h3>
+          </div>
           <div class="timeline">
             <div class="stage stageUrgent">
               <div class="stageTop"><b>${escapeHtml(t().days0_30)}</b><span class="stageTag">${escapeHtml(t().quickWins)}</span></div>
