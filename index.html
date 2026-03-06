@@ -345,6 +345,46 @@
     .timeline{display:grid;grid-template-columns:1fr;gap:10px}
 
     .stage{border:1px solid var(--border);background:linear-gradient(180deg,#fafafa,#fff);border-radius:16px;padding:12px}
+    .stage.stageUrgent{
+      border-color:#fecaca;
+      background:linear-gradient(180deg,#fef2f2,#fff5f5);
+    }
+    .stage.stageUrgent .stageTop b{color:#991b1b}
+    .stage.stageUrgent .stageTag{
+      color:#b91c1c;
+      border-color:#fecaca;
+      background:#fee2e2;
+    }
+    .stage.stageNearTerm{
+      border-color:#fed7aa;
+      background:linear-gradient(180deg,#fff7ed,#fffaf2);
+    }
+    .stage.stageNearTerm .stageTop b{color:#9a3412}
+    .stage.stageNearTerm .stageTag{
+      color:#c2410c;
+      border-color:#fdba74;
+      background:#ffedd5;
+    }
+    .stage.stageGrowth{
+      border-color:#86efac;
+      background:linear-gradient(180deg,#f0fdf4,#ffffff);
+    }
+    .stage.stageGrowth .stageTop b{color:#166534}
+    .stage.stageGrowth .stageTag{
+      color:#15803d;
+      border-color:#86efac;
+      background:#dcfce7;
+    }
+    .stage.stageMature{
+      border-color:#4ade80;
+      background:linear-gradient(180deg,#dcfce7,#f0fdf4);
+    }
+    .stage.stageMature .stageTop b{color:#14532d}
+    .stage.stageMature .stageTag{
+      color:#166534;
+      border-color:#4ade80;
+      background:#bbf7d0;
+    }
     .stageTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
     .stageTop b{font-size:12.5px}
     .stageTag{font-size:12px;font-weight:950;color:var(--accent);border:1px solid rgba(91,33,182,.25);background:rgba(91,33,182,.06);padding:4px 10px;border-radius:999px}
@@ -1230,19 +1270,19 @@
         <div class="roadmap">
           <h3>${escapeHtml(t().roadmap)}</h3>
           <div class="timeline">
-            <div class="stage">
+            <div class="stage stageUrgent">
               <div class="stageTop"><b>${escapeHtml(t().days0_30)}</b><span class="stageTag">${escapeHtml(t().quickWins)}</span></div>
               <ul>${roadmap.quick.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
             </div>
-            <div class="stage">
+            <div class="stage stageNearTerm">
               <div class="stageTop"><b>${escapeHtml(t().days30_90)}</b><span class="stageTag">${escapeHtml(t().stabilize)}</span></div>
               <ul>${roadmap.stabilize.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
             </div>
-            <div class="stage">
+            <div class="stage stageGrowth">
               <div class="stageTop"><b>${escapeHtml(t().months3_6)}</b><span class="stageTag">${escapeHtml(t().deploy)}</span></div>
               <ul>${roadmap.scale.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
             </div>
-            <div class="stage">
+            <div class="stage stageMature">
               <div class="stageTop"><b>${escapeHtml(t().months6_12)}</b><span class="stageTag">${escapeHtml(t().optimize)}</span></div>
               <ul>${roadmap.optimize.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
             </div>
