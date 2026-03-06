@@ -227,6 +227,61 @@
     .btnPrimary:hover{filter:brightness(.98)}
     .btn:disabled{opacity:.45;cursor:not-allowed}
 
+    .btnSecondary{
+      border-color:rgba(91,33,182,.35);
+      color:var(--accent);
+      background:rgba(91,33,182,.05);
+    }
+    .btnSecondary:hover{background:rgba(91,33,182,.1)}
+
+    .actionGroup{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      align-items:center;
+      margin:0 auto;
+    }
+
+    .modalOverlay{
+      position:fixed;
+      inset:0;
+      background:rgba(17,24,39,.48);
+      z-index:60;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .modalOverlay.open{display:flex}
+
+    .modalCard{
+      width:min(760px, 100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 24px 50px rgba(17,24,39,.25);
+      padding:18px;
+    }
+
+    .formField{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+    .formField label{font-size:13px;font-weight:900;color:#374151}
+    .formField textarea{
+      width:100%;
+      min-height:120px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      font:inherit;
+      color:#111827;
+      resize:vertical;
+      background:#fff;
+    }
+    #contactResults{min-height:220px;background:#f9fafb}
+    .modalActions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:14px}
+
     /* ====== BOTTOM BAR ====== */
     .bottomBar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--border);box-shadow:0 -10px 24px rgba(17,24,39,.08);}
     .bottomInner{max-width:1240px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
@@ -377,6 +432,28 @@
     </div>
   </div>
 
+  <div class="modalOverlay" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+    <div class="modalCard">
+      <div class="qTitle" id="contactTitle" style="font-size:22px;margin-top:0">Contact an expert</div>
+      <p class="qHint" id="contactDescription">Review the survey results and add additional notes before sending.</p>
+
+      <div class="formField">
+        <label for="contactResults" id="contactResultsLabel">Survey results</label>
+        <textarea id="contactResults" readonly></textarea>
+      </div>
+
+      <div class="formField">
+        <label for="contactNotes" id="contactNotesLabel">Additional notes</label>
+        <textarea id="contactNotes" placeholder="Add context, priorities, or key constraints."></textarea>
+      </div>
+
+      <div class="modalActions">
+        <button class="btn" onclick="closeContactForm()" id="contactCancelBtn">Cancel</button>
+        <button class="btn btnPrimary" onclick="submitContactForm()" id="contactSendBtn">Send by email</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   // =======================
   // i18n strings
@@ -411,6 +488,18 @@
       optimize: 'Optimize',
       restart: 'Restart',
       exportPdf: 'Export PDF',
+      contactExpert: 'Contact an expert',
+      contactFormTitle: 'Contact an expert',
+      contactFormDesc: 'Review the survey results and add additional notes before sending.',
+      contactResultsLabel: 'Survey results',
+      contactNotesLabel: 'Additional notes',
+      contactNotesPlaceholder: 'Add context, priorities, or key constraints.',
+      contactCancel: 'Cancel',
+      contactSend: 'Send by email',
+      contactSubject: 'Digital Sovereignty Assessment - Expert contact request',
+      contactIntro: 'Hello CGI cybersecurity team,',
+      contactDetails: 'Please find below the completed assessment results.',
+      contactNotesTitle: 'Additional notes',
       doneLine: (pct,status)=>`This section is ${pct}% complete — ${status}`,
       inProgress: 'In progress',
       completed: 'Completed',
@@ -450,6 +539,18 @@
       optimize: 'Optimiser',
       restart: 'Recommencer',
       exportPdf: 'Exporter en PDF',
+      contactExpert: 'Contacter un expert',
+      contactFormTitle: 'Contacter un expert',
+      contactFormDesc: 'Vérifiez les résultats du sondage et ajoutez des notes avant l\'envoi.',
+      contactResultsLabel: 'Résultats du sondage',
+      contactNotesLabel: 'Notes complémentaires',
+      contactNotesPlaceholder: 'Ajoutez le contexte, les priorités ou les contraintes clés.',
+      contactCancel: 'Annuler',
+      contactSend: 'Envoyer par email',
+      contactSubject: 'Évaluation de souveraineté numérique - Demande de contact expert',
+      contactIntro: 'Bonjour équipe cybersécurité CGI,',
+      contactDetails: 'Veuillez trouver ci-dessous les résultats du sondage complété.',
+      contactNotesTitle: 'Notes complémentaires',
       doneLine: (pct,status)=>`Cette section est remplie à ${pct}% — ${status}`,
       inProgress: 'En cours',
       completed: 'Terminé',
@@ -489,6 +590,18 @@
       optimize: 'Optimizar',
       restart: 'Reiniciar',
       exportPdf: 'Exportar PDF',
+      contactExpert: 'Contactar a un experto',
+      contactFormTitle: 'Contactar a un experto',
+      contactFormDesc: 'Revise los resultados de la encuesta y añada notas antes del envío.',
+      contactResultsLabel: 'Resultados de la encuesta',
+      contactNotesLabel: 'Notas adicionales',
+      contactNotesPlaceholder: 'Agregue contexto, prioridades o restricciones clave.',
+      contactCancel: 'Cancelar',
+      contactSend: 'Enviar por correo',
+      contactSubject: 'Evaluación de soberanía digital - Solicitud de contacto experto',
+      contactIntro: 'Hola equipo de ciberseguridad de CGI,',
+      contactDetails: 'A continuación encontrará los resultados de la encuesta completada.',
+      contactNotesTitle: 'Notas adicionales',
       doneLine: (pct,status)=>`Esta sección está completada al ${pct}% — ${status}`,
       inProgress: 'En curso',
       completed: 'Completado',
@@ -897,6 +1010,15 @@
 
   const elLangBtn = document.getElementById('langBtn');
   const elLangMenu = document.getElementById('langMenu');
+  const elContactModal = document.getElementById('contactModal');
+  const elContactTitle = document.getElementById('contactTitle');
+  const elContactDescription = document.getElementById('contactDescription');
+  const elContactResultsLabel = document.getElementById('contactResultsLabel');
+  const elContactNotesLabel = document.getElementById('contactNotesLabel');
+  const elContactResults = document.getElementById('contactResults');
+  const elContactNotes = document.getElementById('contactNotes');
+  const elContactCancelBtn = document.getElementById('contactCancelBtn');
+  const elContactSendBtn = document.getElementById('contactSendBtn');
 
   // =======================
   // Helpers
@@ -927,6 +1049,16 @@
     const status = (pct===100) ? t().completed : t().inProgress;
     elCompletionLine.textContent = t().doneLine(pct, status);
     elCompletionSub.textContent = t().savedSub;
+  }
+
+  function updateContactFormUI(){
+    elContactTitle.textContent = t().contactFormTitle;
+    elContactDescription.textContent = t().contactFormDesc;
+    elContactResultsLabel.textContent = t().contactResultsLabel;
+    elContactNotesLabel.textContent = t().contactNotesLabel;
+    elContactNotes.placeholder = t().contactNotesPlaceholder;
+    elContactCancelBtn.textContent = t().contactCancel;
+    elContactSendBtn.textContent = t().contactSend;
   }
 
   function buildStepNav(){
@@ -967,6 +1099,7 @@
     document.documentElement.lang = lang;
     elLangBtn.innerHTML = `${lang.toUpperCase()} <span class="caret"></span>`;
     elTitle.textContent = t().appTitle;
+    updateContactFormUI();
     closeLangMenu();
     saveLocal(true);
     render();
@@ -981,12 +1114,21 @@
   window.restart = restart;
   window.saveLocal = saveLocal;
   window.exportSummaryPdf = exportSummaryPdf;
+  window.openContactForm = openContactForm;
+  window.closeContactForm = closeContactForm;
+  window.submitContactForm = submitContactForm;
 
   elLangBtn.addEventListener('click', (e)=>{
     e.stopPropagation();
     toggleLangMenu();
   });
   document.addEventListener('click', ()=> closeLangMenu());
+  elContactModal.addEventListener('click', (e)=>{
+    if(e.target === elContactModal) closeContactForm();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') closeContactForm();
+  });
 
   // =======================
   // Render
@@ -1109,10 +1251,11 @@
 
         <div class="divider"></div>
 
-        <div class="navRow">
+        <div class="navRow" style="flex-direction:column;align-items:center;text-align:center;">
           <span class="note">${escapeHtml(t().summaryIntro)}</span>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="actionGroup">
             <button class="btn btnPrimary" onclick="exportSummaryPdf()">${escapeHtml(t().exportPdf)}</button>
+            <button class="btn btnSecondary" onclick="openContactForm()">${escapeHtml(t().contactExpert)}</button>
             <button class="btn" onclick="restart()">${escapeHtml(t().restart)}</button>
           </div>
         </div>
@@ -1178,6 +1321,47 @@
   function exportSummaryPdf(){
     if(mode !== 'summary') return;
     window.print();
+  }
+
+  function buildContactResultsText(){
+    const synthesis = buildSynthesis();
+    const header = `${t().summaryTitle}\n${t().overallScore}: ${synthesis.weightedPct}% (${synthesis.sealLabel})`;
+    const scoresDetails = QUESTIONS.map((q)=>{
+      const score = isAnswered(q.id) ? scores[q.id] : 'N/A';
+      return `${q.id} - ${q.label[lang]}\n${q.title[lang]}\nScore: ${score}`;
+    }).join('\n\n');
+
+    return `${header}\n\n${scoresDetails}`;
+  }
+
+  function openContactForm(){
+    if(mode !== 'summary') return;
+    updateContactFormUI();
+    elContactResults.value = buildContactResultsText();
+    elContactModal.classList.add('open');
+  }
+
+  function closeContactForm(){
+    elContactModal.classList.remove('open');
+  }
+
+  function submitContactForm(){
+    const recipient = 'cybersecurity.gma@cgi.com';
+    const notes = (elContactNotes.value || '').trim();
+    const body = [
+      t().contactIntro,
+      '',
+      t().contactDetails,
+      '',
+      elContactResults.value,
+      '',
+      `${t().contactNotesTitle}:`,
+      notes || '-',
+    ].join('\n');
+
+    const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(t().contactSubject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+    closeContactForm();
   }
 
   // =======================
