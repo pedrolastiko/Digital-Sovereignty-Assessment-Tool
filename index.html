@@ -302,6 +302,7 @@
     .scoreLogo{width:48px;height:48px;border-radius:14px;background:rgba(227,25,55,.08);border:1px solid rgba(227,25,55,.25);display:grid;place-items:center;color:var(--cgi-red);}
     .scoreLogo svg{width:30px;height:30px;display:block}
     .scoreBig{font-size:32px;font-weight:1000;line-height:1;margin:0}
+    .scoreBigLevel{font-size:24px;line-height:1.2}
     .scoreSub{margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.35}
 
     .gaugeWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;margin-top:14px}
@@ -343,6 +344,12 @@
     .roadmap{border:1px solid var(--border);background:#fff;border-radius:16px;padding:14px}
     .roadmap h3{margin:0 0 10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
     .timeline{display:grid;grid-template-columns:1fr;gap:10px}
+
+    .levelDescriptions{margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
+    .levelDescriptions h4{margin:0 0 10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .levelDescriptions ul{margin:0;padding-left:18px;display:grid;gap:8px}
+    .levelDescriptions li{font-size:14px;line-height:1.45;color:#374151}
+    .levelDescriptions li b{color:#111827}
 
     .stage{border:1px solid var(--border);background:linear-gradient(180deg,#fafafa,#fff);border-radius:16px;padding:12px}
     .stage.stageUrgent{
@@ -548,6 +555,7 @@
       level: (s)=>`Level ${s}`,
       weightedLabel: 'Weighted',
       identifiedLevel: 'Identified sovereignty level',
+      sovereigntyLevels: 'Sovereignty level descriptions',
       weightedExplain: (_pct,avg,total)=>`Weighted score (categories + weights). Raw average: ${avg} / 4 · Total: ${total} / 40.`,
     },
     fr: {
@@ -599,6 +607,7 @@
       level: (s)=>`Niveau ${s}`,
       weightedLabel: 'Pondéré',
       identifiedLevel: 'Niveau de souveraineté identifié',
+      sovereigntyLevels: 'Description des niveaux de souveraineté',
       weightedExplain: (_pct,avg,total)=>`Score pondéré (catégories + poids). Moyenne brute: ${avg} / 4 · Total: ${total} / 40.`,
     },
     es: {
@@ -650,6 +659,7 @@
       level: (s)=>`Nivel ${s}`,
       weightedLabel: 'Ponderado',
       identifiedLevel: 'Nivel de soberanía identificado',
+      sovereigntyLevels: 'Descripción de los niveles de soberanía',
       weightedExplain: (_pct,avg,total)=>`Puntuación ponderada (categorías + pesos). Media bruta: ${avg} / 4 · Total: ${total} / 40.`,
     }
   };
@@ -1180,7 +1190,7 @@
 
     if(mode==='summary'){
       const s = buildSynthesis();
-      const {avg, total, sealLabel, sealDesc, weightedPct, objectiveScores, criticalViolations, roadmap} = s;
+      const {avg, total, sealLabel, sealDesc, weightedPct, objectiveScores, criticalViolations, roadmap, sealLevels} = s;
       const arcOffset = 314 - Math.round(314*(weightedPct/100));
       const scoreColor = getScoreColor(weightedPct);
 
@@ -1201,7 +1211,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="136" height="136" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe-lock-icon lucide-globe-lock"><path d="M15.686 15A14.5 14.5 0 0 1 12 22a14.5 14.5 0 0 1 0-20 10 10 0 1 0 9.542 13"/><path d="M2 12h8.5"/><path d="M20 6V4a2 2 0 1 0-4 0v2"/><rect width="8" height="5" x="14" y="6" rx="1"/></svg>
               </div>
               <div>
-                <p class="scoreBig">${weightedPct}%</p>
+                <p class="scoreBig scoreBigLevel">${escapeHtml(t().identifiedLevel)}: ${escapeHtml(sealLabel)}</p>
                 <div class="scoreSub">${escapeHtml(t().weightedExplain(weightedPct, avg.toFixed(1), total))}</div>
               </div>
             </div>
@@ -1286,6 +1296,13 @@
               <div class="stageTop"><b>${escapeHtml(t().months6_12)}</b><span class="stageTag">${escapeHtml(t().optimize)}</span></div>
               <ul>${roadmap.optimize.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
             </div>
+          </div>
+
+          <div class="levelDescriptions">
+            <h4>${escapeHtml(t().sovereigntyLevels)}</h4>
+            <ul>
+              ${sealLevels.map(level=>`<li><b>${escapeHtml(level.label)}</b> — ${escapeHtml(level.desc)}</li>`).join('')}
+            </ul>
           </div>
         </div>
 
@@ -1507,6 +1524,7 @@
       sealBand,
       sealLabel: sealInfo[sealBand].label,
       sealDesc: sealInfo[sealBand].desc,
+      sealLevels: Object.values(sealInfo),
       weightedPct,
       objectiveScores,
       criticalViolations,
