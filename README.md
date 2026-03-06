@@ -41,6 +41,20 @@ python3 -m http.server 8000
 
 Then open: `http://localhost:8000`
 
+## 📦 HTML File (Ready to Use)
+
+The runnable HTML file is available directly in the repository:
+
+- `index.html`
+
+You can open it directly in a browser, or serve it locally with:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then visit: `http://localhost:8000`
+
 ## ✅ Recommended Use Cases
 
 - Internal assessment workshops.
