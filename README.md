@@ -2,6 +2,10 @@
 
 A self-assessment questionnaire for digital sovereignty, designed to run **100% locally in the browser**.
 
+## 🎯 Purpose
+
+The tool helps evaluate an organization's digital sovereignty maturity across multiple dimensions (cloud, data, identity, infrastructure, compliance, etc.), then provides a score and summary.
+
 ## ✅ Use Cases
 
 - Internal assessment workshops.
@@ -25,9 +29,7 @@ This project is intentionally built for local use to protect sensitive informati
 
 In short: your data stays under your control, in your own environment.
 
-## 🎯 Purpose
 
-The tool helps evaluate an organization's digital sovereignty maturity across multiple dimensions (cloud, data, identity, infrastructure, compliance, etc.), then provides a score and summary.
 
 ## 🧱 Tech Stack
 
