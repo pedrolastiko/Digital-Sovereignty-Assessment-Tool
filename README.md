@@ -2,6 +2,18 @@
 
 A self-assessment questionnaire for digital sovereignty, designed to run **100% locally in the browser**.
 
+## ✅ Use Cases
+
+- Internal assessment workshops.
+- Sensitive contexts (security, compliance, enterprise architecture, data sovereignty).
+- Demonstrations where you must ensure that no information leaves the user's device.
+
+## ⚠️ Good Practices
+
+- Run the tool on a trusted workstation.
+- Avoid untrusted browser extensions in sensitive contexts.
+- Clear browser storage after use if required.
+
 ## 🔒 Security & Privacy (Core Principle)
 
 This project is intentionally built for local use to protect sensitive information:
@@ -54,18 +66,6 @@ python3 -m http.server 8000
 ```
 
 Then visit: `http://localhost:8000`
-
-## ✅ Recommended Use Cases
-
-- Internal assessment workshops.
-- Sensitive contexts (security, compliance, enterprise architecture, data sovereignty).
-- Demonstrations where you must ensure that no information leaves the user's device.
-
-## ⚠️ Good Practices
-
-- Run the tool on a trusted workstation.
-- Avoid untrusted browser extensions in sensitive contexts.
-- Clear browser storage after use if required.
 
 ## 📄 License
 
