@@ -123,7 +123,7 @@
       max-width:1240px;margin:0 auto;
       padding:10px 18px 12px;
       display:grid;
-      grid-template-columns:repeat(10, minmax(0, 1fr));
+      grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));
       gap:14px;
     }
 
@@ -1051,12 +1051,124 @@
         ]
       }
     },
+
+    {
+      id: 'Q11',
+      label: { en:'AI provenance', fr:'IA — Provenance', es:'IA — Procedencia' },
+      title: {
+        en: 'Do we control the provenance, lineage, and usage conditions of our critical AI models, training data, embeddings, prompts, and ML components?',
+        fr: 'Maîtrisons-nous la provenance, la lignée et les conditions d’usage de nos modèles IA, données d’entraînement, embeddings, prompts et composants ML critiques ?',
+        es: '¿Controlamos la procedencia, el linaje y las condiciones de uso de nuestros modelos de IA críticos, datos de entrenamiento, embeddings, prompts y componentes ML?'
+      },
+      hint: {
+        en: 'Model and dataset origin, versions, licenses, fine-tuning, system prompts, embeddings, OSS/proprietary ML dependencies, and audit evidence.',
+        fr: 'Origine des modèles et jeux de données, versions, licences, fine-tuning, prompts système, embeddings, dépendances ML open source/propriétaires et preuves d’audit.',
+        es: 'Origen de modelos y datos, versiones, licencias, fine-tuning, prompts de sistema, embeddings, dependencias ML open source/propietarias y evidencia de auditoría.'
+      },
+      levels: {
+        en: [
+          'AI model, data, and component origins are unknown.',
+          'We identify a few AI models or providers, without full traceability.',
+          'We have a partial inventory of AI models, data, prompts, and components.',
+          'Critical AI provenance, licenses, versions, datasets, and dependencies are documented and auditable.',
+          'AI traceability is automated, governed, and integrated into development and deployment lifecycles.'
+        ],
+        fr: [
+          'Origine des modèles, données et composants IA inconnue.',
+          'Quelques modèles ou fournisseurs IA identifiés, sans traçabilité complète.',
+          'Inventaire partiel des modèles, données, prompts et composants IA.',
+          'Provenance, licences, versions, jeux de données et dépendances IA critiques documentés et auditables.',
+          'Traçabilité IA automatisée, gouvernée et intégrée au cycle de développement et de déploiement.'
+        ],
+        es: [
+          'Se desconoce el origen de modelos, datos y componentes de IA.',
+          'Identificamos algunos modelos o proveedores de IA, sin trazabilidad completa.',
+          'Tenemos un inventario parcial de modelos, datos, prompts y componentes de IA.',
+          'La procedencia, licencias, versiones, datos y dependencias críticas de IA están documentadas y son auditables.',
+          'La trazabilidad de IA está automatizada, gobernada e integrada en los ciclos de desarrollo y despliegue.'
+        ]
+      }
+    },
+    {
+      id: 'Q12',
+      label: { en:'AI compute & jurisdiction', fr:'IA — Calcul & juridiction', es:'IA — Cómputo y jurisdicción' },
+      title: {
+        en: 'Do we know where our AI workloads are trained, fine-tuned, executed, and monitored, and can we keep them within trusted jurisdictions?',
+        fr: 'Savons-nous où nos workloads IA sont entraînés, affinés, exécutés et supervisés, et pouvons-nous garantir qu’ils restent dans des juridictions de confiance ?',
+        es: '¿Sabemos dónde se entrenan, ajustan, ejecutan y supervisan nuestras cargas de IA, y podemos mantenerlas en jurisdicciones de confianza?'
+      },
+      hint: {
+        en: 'Training, fine-tuning, inference, RAG, vector stores, logs, telemetry, prompts, generated outputs, accelerators, support, administration, and cross-border operations.',
+        fr: 'Entraînement, fine-tuning, inférence, RAG, bases vectorielles, logs, télémétrie, prompts, réponses générées, accélérateurs, support, administration et opérations transfrontalières.',
+        es: 'Entrenamiento, fine-tuning, inferencia, RAG, almacenes vectoriales, logs, telemetría, prompts, salidas generadas, aceleradores, soporte, administración y operaciones transfronterizas.'
+      },
+      levels: {
+        en: [
+          'AI compute location and related processing are unknown.',
+          'We partially know providers or regions, but without effective control.',
+          'Critical AI processing is mapped, but some flows or logs remain exposed.',
+          'Critical AI processing runs in controlled environments and jurisdictions with access, key, and monitoring controls.',
+          'AI workload placement is policy-enforced, automatically controlled, and continuously verifiable.'
+        ],
+        fr: [
+          'Localisation du calcul IA et des traitements associés inconnue.',
+          'Fournisseurs ou régions partiellement connus, sans contrôle effectif.',
+          'Traitements IA critiques cartographiés, mais certains flux ou logs restent exposés.',
+          'Traitements IA critiques exécutés dans des environnements et juridictions maîtrisés avec contrôles d’accès, clés et supervision.',
+          'Placement des workloads IA appliqué par politique, contrôlé automatiquement et vérifiable en continu.'
+        ],
+        es: [
+          'La ubicación del cómputo de IA y tratamientos asociados es desconocida.',
+          'Conocemos parcialmente proveedores o regiones, sin control efectivo.',
+          'El procesamiento crítico de IA está mapeado, pero algunos flujos o logs siguen expuestos.',
+          'El procesamiento crítico de IA se ejecuta en entornos y jurisdicciones controladas con controles de acceso, llaves y monitoreo.',
+          'La ubicación de cargas de IA se aplica por política, se controla automáticamente y se verifica continuamente.'
+        ]
+      }
+    },
+    {
+      id: 'Q13',
+      label: { en:'Responsible AI control', fr:'IA — Gouvernance responsable', es:'IA — Gobernanza responsable' },
+      title: {
+        en: 'Can we govern, explain, supervise, suspend, or relocate our critical AI systems without excessive provider dependency?',
+        fr: 'Pouvons-nous gouverner, expliquer, superviser, suspendre ou relocaliser nos systèmes IA critiques sans dépendance excessive à un fournisseur ?',
+        es: '¿Podemos gobernar, explicar, supervisar, suspender o relocalizar nuestros sistemas críticos de IA sin dependencia excesiva de un proveedor?'
+      },
+      hint: {
+        en: 'Human oversight, explainability, auditability, risk management, red teaming, use policies, kill switch, non-AI fallback, model reversibility, continuity, and compliance evidence.',
+        fr: 'Supervision humaine, explicabilité, auditabilité, gestion des risques, red teaming, politiques d’usage, kill switch, fallback non-IA, réversibilité du modèle, continuité et preuves de conformité.',
+        es: 'Supervisión humana, explicabilidad, auditoría, gestión de riesgos, red teaming, políticas de uso, kill switch, fallback no-IA, reversibilidad del modelo, continuidad y evidencia de cumplimiento.'
+      },
+      levels: {
+        en: [
+          'Critical AI systems run without clear governance, supervision, or shutdown capability.',
+          'Responsible AI principles exist, but are not operationally enforced.',
+          'Some controls exist, such as human validation, logs, usage policies, or point-in-time tests.',
+          'Critical AI systems are governed with explainability, human oversight, audit evidence, and suspend/recover procedures.',
+          'AI governance is embedded end-to-end in SDLC/MLOps with continuous controls, automated evidence, and relocation or replacement capability.'
+        ],
+        fr: [
+          'Systèmes IA critiques sans gouvernance, supervision ou capacité d’arrêt claire.',
+          'Principes d’IA responsable existants, mais non appliqués opérationnellement.',
+          'Certains contrôles existent : validation humaine, logs, politiques d’usage ou tests ponctuels.',
+          'Systèmes IA critiques gouvernés avec explicabilité, supervision humaine, preuves d’audit et procédures de suspension/reprise.',
+          'Gouvernance IA intégrée de bout en bout au SDLC/MLOps avec contrôles continus, preuves automatisées et capacité de relocalisation/remplacement.'
+        ],
+        es: [
+          'Los sistemas críticos de IA operan sin gobernanza, supervisión o capacidad clara de apagado.',
+          'Existen principios de IA responsable, pero no se aplican operativamente.',
+          'Existen algunos controles: validación humana, logs, políticas de uso o pruebas puntuales.',
+          'Los sistemas críticos de IA están gobernados con explicabilidad, supervisión humana, evidencia de auditoría y procedimientos de suspensión/recuperación.',
+          'La gobernanza de IA está integrada end-to-end en SDLC/MLOps con controles continuos, evidencia automatizada y capacidad de relocalización o reemplazo.'
+        ]
+      }
+    }
   ];
 
   // =======================
   // State
   // =======================
-  const STORAGE_KEY = 'sovereignty_questionnaire_v4_nojson';
+  const STORAGE_KEY = 'sovereignty_questionnaire_v5_nojson';
   let lang = 'en';
   let idx = 0;
   let mode = 'quiz'; // quiz | summary
@@ -1443,7 +1555,7 @@
   // Persistence
   // =======================
   function saveLocal(silent=false){
-    const payload = { version:'4.0', saved_at:new Date().toISOString(), idx, mode, scores };
+    const payload = { version:'5.0', saved_at:new Date().toISOString(), idx, mode, scores };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     if(!silent){
       elCompletionSub.textContent = t().savedToast;
@@ -1470,13 +1582,14 @@
   // =======================
   function buildSynthesis(){
     const objectives = [
-      { name: (lang==='fr' ? 'Souveraineté stratégique' : (lang==='es' ? 'Soberanía estratégica' : 'Strategic sovereignty')), weight:15, qids:['Q1','Q10'] },
-      { name: (lang==='fr' ? 'Juridique & juridiction' : (lang==='es' ? 'Legal y jurisdiccional' : 'Legal & jurisdictional')), weight:10, qids:['Q3'] },
-      { name: (lang==='fr' ? 'Données (résidence & cycle de vie)' : (lang==='es' ? 'Datos (residencia y ciclo de vida)' : 'Data (residency & lifecycle)')), weight:10, qids:['Q2'] },
-      { name: (lang==='fr' ? 'Souveraineté opérationnelle' : (lang==='es' ? 'Soberanía operativa' : 'Operational sovereignty')), weight:15, qids:['Q6'] },
-      { name: (lang==='fr' ? 'Souveraineté supply chain' : (lang==='es' ? 'Soberanía de cadena de suministro' : 'Supply chain sovereignty')), weight:20, qids:['Q7'] },
-      { name: (lang==='fr' ? 'Technologie (portabilité & lock-in)' : (lang==='es' ? 'Tecnología (portabilidad y lock-in)' : 'Technology (portability & lock-in)')), weight:20, qids:['Q4','Q5'] },
-      { name: (lang==='fr' ? 'Sécurité, assurance & preuves' : (lang==='es' ? 'Seguridad, aseguramiento y evidencia' : 'Security, assurance & evidence')), weight:10, qids:['Q8','Q9'] },
+      { name: (lang==='fr' ? 'Souveraineté stratégique' : (lang==='es' ? 'Soberanía estratégica' : 'Strategic sovereignty')), weight:12, qids:['Q1','Q10'] },
+      { name: (lang==='fr' ? 'Juridique & juridiction' : (lang==='es' ? 'Legal y jurisdiccional' : 'Legal & jurisdictional')), weight:9, qids:['Q3'] },
+      { name: (lang==='fr' ? 'Données (résidence & cycle de vie)' : (lang==='es' ? 'Datos (residencia y ciclo de vida)' : 'Data (residency & lifecycle)')), weight:9, qids:['Q2'] },
+      { name: (lang==='fr' ? 'Souveraineté opérationnelle' : (lang==='es' ? 'Soberanía operativa' : 'Operational sovereignty')), weight:12, qids:['Q6'] },
+      { name: (lang==='fr' ? 'Souveraineté supply chain' : (lang==='es' ? 'Soberanía de cadena de suministro' : 'Supply chain sovereignty')), weight:16, qids:['Q7'] },
+      { name: (lang==='fr' ? 'Technologie (portabilité & lock-in)' : (lang==='es' ? 'Tecnología (portabilidad y lock-in)' : 'Technology (portability & lock-in)')), weight:16, qids:['Q4','Q5'] },
+      { name: (lang==='fr' ? 'Sécurité, assurance & preuves' : (lang==='es' ? 'Seguridad, aseguramiento y evidencia' : 'Security, assurance & evidence')), weight:11, qids:['Q8','Q9'] },
+      { name: (lang==='fr' ? 'IA souveraine' : (lang==='es' ? 'IA soberana' : 'Sovereign AI')), weight:15, qids:['Q11','Q12','Q13'] },
     ];
 
     const vals = QUESTIONS.map(q => (scores[q.id] ?? null)).filter(v => v !== null);
@@ -1520,14 +1633,20 @@
       { qid:'Q2', name:'Résidence et cycle de vie des données' },
       { qid:'Q3', name:'Contrôles d’accès extraterritorial' },
       { qid:'Q9', name:'Contrôle IAM / clés / monitoring' },
+      { qid:'Q11', name:'Provenance et lignée IA' },
+      { qid:'Q12', name:'Calcul IA et juridictions de confiance' },
     ] : (lang==='es') ? [
       { qid:'Q2', name:'Residencia y ciclo de vida de datos' },
       { qid:'Q3', name:'Controles de acceso extraterritorial' },
       { qid:'Q9', name:'Control de IAM/llaves/monitoreo' },
+      { qid:'Q11', name:'Procedencia y linaje de IA' },
+      { qid:'Q12', name:'Cómputo de IA y jurisdicciones de confianza' },
     ] : [
       { qid:'Q2', name:'Data residency & lifecycle' },
       { qid:'Q3', name:'Extraterritorial access controls' },
       { qid:'Q9', name:'Control of IAM/keys/monitoring' },
+      { qid:'Q11', name:'AI provenance and lineage' },
+      { qid:'Q12', name:'AI compute and trusted jurisdictions' },
     ];
 
     const criticalViolations = fundamentals
@@ -1585,6 +1704,19 @@
         : 'Clarify key/IAM custody and enable break-glass + independent baseline logging.'
     );
 
+    if(criticalViolations.some(v=>v.qid==='Q11')) quick.push(isFr
+      ? 'Inventorier modèles IA, datasets, prompts système, embeddings, licences et dépendances ML critiques.'
+      : isEs
+        ? 'Inventariar modelos de IA, datasets, prompts de sistema, embeddings, licencias y dependencias ML críticas.'
+        : 'Inventory critical AI models, datasets, system prompts, embeddings, licenses, and ML dependencies.'
+    );
+    if(criticalViolations.some(v=>v.qid==='Q12')) quick.push(isFr
+      ? 'Cartographier entraînement, fine-tuning, inférence, RAG, bases vectorielles, logs IA et juridictions associées.'
+      : isEs
+        ? 'Mapear entrenamiento, fine-tuning, inferencia, RAG, almacenes vectoriales, logs de IA y jurisdicciones asociadas.'
+        : 'Map AI training, fine-tuning, inference, RAG, vector stores, AI logs, and associated jurisdictions.'
+    );
+
     quick.push(isFr
       ? 'Identifier le Top 5 des dépendances critiques et documenter les “hard dependencies” (régions, support, opérations).'
       : isEs
@@ -1611,6 +1743,12 @@
         : 'Build a dependency register (including subcontractors and critical OSS components).'
     );
     stabilize.push(isFr
+      ? 'Définir les guardrails IA responsable : supervision humaine, politiques d’usage, explicabilité, red teaming et kill switch.'
+      : isEs
+        ? 'Definir guardrails de IA responsable: supervisión humana, políticas de uso, explicabilidad, red teaming y kill switch.'
+        : 'Define responsible AI guardrails: human oversight, usage policies, explainability, red teaming, and kill switch.'
+    );
+    stabilize.push(isFr
       ? 'Tester un scénario d’indisponibilité fournisseur (tabletop) + runbooks de reprise.'
       : isEs
         ? 'Ejecutar un tabletop de interrupción del proveedor y validar runbooks de recuperación.'
@@ -1634,6 +1772,12 @@
       : isEs
         ? 'Crear un paquete de evidencia (audit-ready): logs, atestaciones, trazabilidad de acceso y custodia de llaves.'
         : 'Build an audit-ready evidence pack: logs, attestations, access traceability, and key custody model.'
+    );
+    scale.push(isFr
+      ? 'Intégrer la gouvernance IA au SDLC/MLOps : traçabilité modèle/données, contrôles continus et preuves automatisées.'
+      : isEs
+        ? 'Integrar la gobernanza de IA en SDLC/MLOps: trazabilidad de modelos/datos, controles continuos y evidencia automatizada.'
+        : 'Embed AI governance into SDLC/MLOps: model/data traceability, continuous controls, and automated evidence.'
     );
 
     optimize.push(isFr

@@ -4,7 +4,7 @@ A self-assessment questionnaire for digital sovereignty, designed to run **100% 
 
 ## 🎯 Purpose
 
-The tool helps evaluate an organization's digital sovereignty maturity across multiple dimensions (cloud, data, identity, infrastructure, compliance, etc.), then provides a score and summary.
+The tool helps evaluate an organization's digital sovereignty maturity across multiple dimensions (cloud, data, identity, infrastructure, compliance, sovereign AI, etc.), then provides a score and summary.
 
 ## ✅ Use Cases
 
