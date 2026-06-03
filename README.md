@@ -18,6 +18,20 @@ The tool helps evaluate an organization's digital sovereignty maturity across mu
 - Avoid untrusted browser extensions in sensitive contexts.
 - Clear browser storage after use if required.
 
+## 📚 Additional Resources
+
+### Certifications
+
+- **AIGP — Artificial Intelligence Governance Professional (IAPP)**: https://iapp.org/certify/aigp
+
+### Declarations & Commitments
+
+- **Montreal Declaration for a Responsible Development of Artificial Intelligence — Citizen signatories**: https://montrealdeclaration-responsibleai.com/i-sign-the-declaration/citizen-signatories/?page_size=100
+
+### Research Articles
+
+- **ScienceDirect article (S2666389923002416)**: https://www.sciencedirect.com/science/article/pii/S2666389923002416
+
 ## 🔒 Security & Privacy (Core Principle)
 
 This project is intentionally built for local use to protect sensitive information:
