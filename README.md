@@ -75,4 +75,4 @@ This project is distributed under the MIT License. See `LICENSE`.
 
 ## 📚 Local regulation & guidance
 
-Please see file :
+Please see file : RESSOURCES.md (./RESSOURCES.md)
