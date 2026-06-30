@@ -22,7 +22,7 @@ The tool helps evaluate an organization's digital sovereignty maturity across mu
 
 ### Certifications
 
-- **AIGP — Artificial Intelligence Governance Professional (IAPP)**: https://iapp.org/certify/aigp
+- **MINISTÈRE DE LA CYBERSÉCURITÉ ET DU NUMÉRIQUE - ÉNONCÉ DE POLITIQUE DE SOUVERAINETÉ NUMÉRIQUE ET D’APPROVISIONNEMENT EN TECHNOLOGIE DE L’INFORMATION (TI)**: https://iapp.org/certify/aigp](https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/cybersecurite_numerique/Publications/Enonce_politique_souverainete_numerique.pdf
 
 ### Declarations & Commitments
 
