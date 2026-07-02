@@ -57,11 +57,12 @@ Then open: `http://localhost:8000`
 
 ## 📦 HTML File (Ready to Use)
 
-The runnable HTML file is available directly in the repository:
+The runnable HTML files are available directly in the repository:
 
-- `index.html`
+- `index.html` — original questionnaire
+- `index-v2.html` — updated questionnaire (v2)
 
-You can open it directly in a browser, or serve it locally with:
+You can open either directly in a browser, or serve them locally with:
 
 ```bash
 python3 -m http.server 8000
