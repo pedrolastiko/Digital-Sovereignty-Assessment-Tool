@@ -142,8 +142,15 @@
   .evta::placeholder{color:#9a9aa3}
   .evta:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,39,128,.12)}
 
+  /* ---- Dashboard toggle ---- */
+  .dash-toggle{display:flex;justify-content:flex-end;margin:14px 0}
+  .dash-toggle .btn{display:inline-flex;align-items:center;gap:8px}
+  .dash-toggle .btn svg{width:14px;height:14px;transition:transform .2s}
+  .dash-toggle .btn.open svg{transform:rotate(180deg)}
+
   /* ---- Results ---- */
-  .results{margin-top:30px}
+  .results{margin:0 0 30px;overflow:hidden;max-height:0;opacity:0;transition:max-height .35s ease,opacity .25s ease}
+  .results.open{max-height:5000px;opacity:1}
   .results h2{font-size:18px;font-weight:600;margin:0 0 14px}
   .rgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
@@ -288,20 +295,14 @@
     <button class="btn" id="resetBtn">Réinitialiser</button>
   </div>
 
-  <div class="frame" id="frame"></div>
-
-  <div class="panel" id="panel">
-    <div class="ph" id="panelHead">
-      <div>
-        <div class="meta" id="panelMeta"></div>
-        <h2 id="panelTitle"></h2>
-      </div>
-      <button class="x" id="panelClose" aria-label="Fermer">&times;</button>
-    </div>
-    <div class="qbody" id="panelBody"></div>
+  <div class="dash-toggle">
+    <button class="btn" id="dashToggleBtn" aria-expanded="false">
+      <span id="dashToggleLabel">Afficher le dashboard</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
   </div>
 
-  <div class="results">
+  <div class="results" id="results">
     <h2 id="resultsTitle">Restitution</h2>
     <div class="card wcard">
       <div class="whead">
@@ -328,6 +329,19 @@
         <div id="radarBox"></div>
       </div>
     </div>
+  </div>
+
+  <div class="frame" id="frame"></div>
+
+  <div class="panel" id="panel">
+    <div class="ph" id="panelHead">
+      <div>
+        <div class="meta" id="panelMeta"></div>
+        <h2 id="panelTitle"></h2>
+      </div>
+      <button class="x" id="panelClose" aria-label="Fermer">&times;</button>
+    </div>
+    <div class="qbody" id="panelBody"></div>
   </div>
 
   <div class="reco-cta">
@@ -414,7 +428,8 @@ var UI={
   evidence:"Preuve / justification",evPlaceholder:"Références, constats, éléments d'audit justifiant la note…",evTitle:"Justification saisie",
   weightTitle:"Pondération des piliers",weightHint:"La note globale est pondérée selon l'importance de chaque pilier. Ajustez les curseurs ou choisissez un profil.",
   wBalanced:"Équilibré",wInfra:"Infra critique",wData:"Données régulées",wAi:"IA-first",wCsf:"CSF strict",
-  total:"Total",renorm:"renormalisé sur 100",wperso:"Personnalisé"},
+  total:"Total",renorm:"renormalisé sur 100",wperso:"Personnalisé",
+  dashShow:"Afficher le dashboard",dashHide:"Masquer le dashboard"},
  en:{eyebrow:"Maturity self-assessment",
   title:'How mature is your <span class="grad">digital sovereignty</span>?',
   lead:'<strong>6 pillars, 31 controls, 93 questions</strong> to objectify what too often comes down to gut feeling. Click a framework element and position yourself on the CMMI scale: each box takes on its maturity color and your sovereignty profile emerges in real time — blind spots, vendor dependencies and priority levers in plain sight.',
@@ -434,7 +449,8 @@ var UI={
   evidence:"Evidence / justification",evPlaceholder:"References, findings, audit elements supporting the score…",evTitle:"Justification recorded",
   weightTitle:"Pillar weighting",weightHint:"The overall score is weighted by each pillar's importance. Adjust the sliders or pick a profile.",
   wBalanced:"Balanced",wInfra:"Critical infra",wData:"Regulated data",wAi:"AI-first",wCsf:"Strict CSF",
-  total:"Total",renorm:"renormalized to 100",wperso:"Custom"}
+  total:"Total",renorm:"renormalized to 100",wperso:"Custom",
+  dashShow:"Show dashboard",dashHide:"Hide dashboard"}
 };
 function ui(k){return UI[LANG][k];}
 var RADAR_LABELS={fr:["Gouvernance","Données","Technologique","Opérationnelle","Sociale","IA"],
@@ -1144,6 +1160,7 @@ function applyI18n(){
     for(var i=0;i<5;i++){lh+='<span class="chip'+(i===2?' l2':'')+'" style="background:'+CMMI[i]+'"><b>'+i+'</b> '+escapeHtml(cmmiName(i))+'</span>';}
     lg.innerHTML=lh;
   }
+  document.getElementById("dashToggleLabel").textContent = dashOpen ? ui("dashHide") : ui("dashShow");
 }
 function rerenderAll(){
   applyI18n();
@@ -1161,6 +1178,18 @@ function setLang(l){
 }
 document.getElementById("langFR").addEventListener("click",function(){setLang("fr");});
 document.getElementById("langEN").addEventListener("click",function(){setLang("en");});
+
+/* Bascule d'affichage du dashboard (masqué par défaut) */
+var dashOpen=false;
+var dashToggleBtn=document.getElementById("dashToggleBtn");
+var dashResults=document.getElementById("results");
+dashToggleBtn.addEventListener("click",function(){
+  dashOpen=!dashOpen;
+  dashResults.classList.toggle("open",dashOpen);
+  dashToggleBtn.classList.toggle("open",dashOpen);
+  dashToggleBtn.setAttribute("aria-expanded",String(dashOpen));
+  document.getElementById("dashToggleLabel").textContent = dashOpen ? ui("dashHide") : ui("dashShow");
+});
 
 /* Pondération : presets + curseurs */
 document.getElementById("wpresets").addEventListener("click",function(e){
