@@ -21,6 +21,9 @@
       --grad:linear-gradient(90deg,#D11A45 0%,#A72162 34%,#7C2780 67%,#512E9E 100%);
       --success:#2BA672;
       --warn:#F2843B;
+      /* Same 0-4 CMMI scale used for the violations panel and roadmap stages */
+      --danger:#E5484D;
+      --growth:#84B53F;
       --bottom-bar-space:120px;
     }
 
@@ -318,21 +321,21 @@
     .barVal{font-size:12.5px;color:var(--muted);font-weight:950;text-align:right}
 
     .violations{
-      border:3px solid #f5a3a8;
-      background:#f4ecec;
+      border:3px solid color-mix(in srgb, var(--danger) 40%, #fff);
+      background:color-mix(in srgb, var(--danger) 6%, #fff);
       border-radius:20px;
       padding:20px;
     }
     .violationsHeader{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
-    .violationsIcon{width:32px;height:32px;flex:0 0 auto;color:#dc2626;display:grid;place-items:center}
+    .violationsIcon{width:32px;height:32px;flex:0 0 auto;color:var(--danger);display:grid;place-items:center}
     .violationsIcon svg{width:30px;height:30px;display:block}
-    .violations h3{margin:0 0 8px;font-size:22px;font-weight:900;line-height:1.2;color:#7f1d1d}
-    .violations p{margin:0;color:#a92323;font-size:17px;line-height:1.45}
+    .violations h3{margin:0 0 8px;font-size:22px;font-weight:900;line-height:1.2;color:color-mix(in srgb, var(--danger) 68%, black)}
+    .violations p{margin:0;color:color-mix(in srgb, var(--danger) 55%, black);font-size:17px;line-height:1.45}
     .violationsList{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}
-    .violationItem{border-radius:16px;padding:14px 18px;background:#f3e3c9}
-    .violationItem.critical{background:#efd6d9}
-    .violationTitle{display:block;font-size:20px;line-height:1.2;color:#7f1d1d}
-    .violationMeta{margin-top:6px;font-size:18px;line-height:1.35;color:#b91c1c}
+    .violationItem{border-radius:16px;padding:14px 18px;background:color-mix(in srgb, var(--warn) 16%, #fff)}
+    .violationItem.critical{background:color-mix(in srgb, var(--danger) 15%, #fff)}
+    .violationTitle{display:block;font-size:20px;line-height:1.2;color:color-mix(in srgb, var(--danger) 68%, black)}
+    .violationMeta{margin-top:6px;font-size:18px;line-height:1.35;color:color-mix(in srgb, var(--danger) 58%, black)}
     @media (max-width: 900px){
       .violations h3{font-size:20px}
       .violations p{font-size:15px}
@@ -365,44 +368,44 @@
 
     .stage{border:1px solid var(--border);background:linear-gradient(180deg,#fafafa,#fff);border-radius:16px;padding:12px}
     .stage.stageUrgent{
-      border-color:#fecaca;
-      background:linear-gradient(180deg,#fef2f2,#fff5f5);
+      border-color:color-mix(in srgb, var(--danger) 38%, #fff);
+      background:linear-gradient(180deg,color-mix(in srgb, var(--danger) 8%, #fff),#fff);
     }
-    .stage.stageUrgent .stageTop b{color:#991b1b}
+    .stage.stageUrgent .stageTop b{color:color-mix(in srgb, var(--danger) 68%, black)}
     .stage.stageUrgent .stageTag{
-      color:#b91c1c;
-      border-color:#fecaca;
-      background:#fee2e2;
+      color:color-mix(in srgb, var(--danger) 75%, black);
+      border-color:color-mix(in srgb, var(--danger) 38%, #fff);
+      background:color-mix(in srgb, var(--danger) 18%, #fff);
     }
     .stage.stageNearTerm{
-      border-color:#fed7aa;
-      background:linear-gradient(180deg,#fff7ed,#fffaf2);
+      border-color:color-mix(in srgb, var(--warn) 38%, #fff);
+      background:linear-gradient(180deg,color-mix(in srgb, var(--warn) 8%, #fff),#fff);
     }
-    .stage.stageNearTerm .stageTop b{color:#9a3412}
+    .stage.stageNearTerm .stageTop b{color:color-mix(in srgb, var(--warn) 68%, black)}
     .stage.stageNearTerm .stageTag{
-      color:#c2410c;
-      border-color:#fdba74;
-      background:#ffedd5;
+      color:color-mix(in srgb, var(--warn) 75%, black);
+      border-color:color-mix(in srgb, var(--warn) 38%, #fff);
+      background:color-mix(in srgb, var(--warn) 18%, #fff);
     }
     .stage.stageGrowth{
-      border-color:#86efac;
-      background:linear-gradient(180deg,#f0fdf4,#ffffff);
+      border-color:color-mix(in srgb, var(--growth) 38%, #fff);
+      background:linear-gradient(180deg,color-mix(in srgb, var(--growth) 8%, #fff),#fff);
     }
-    .stage.stageGrowth .stageTop b{color:#166534}
+    .stage.stageGrowth .stageTop b{color:color-mix(in srgb, var(--growth) 68%, black)}
     .stage.stageGrowth .stageTag{
-      color:#15803d;
-      border-color:#86efac;
-      background:#dcfce7;
+      color:color-mix(in srgb, var(--growth) 75%, black);
+      border-color:color-mix(in srgb, var(--growth) 38%, #fff);
+      background:color-mix(in srgb, var(--growth) 18%, #fff);
     }
     .stage.stageMature{
-      border-color:#4ade80;
-      background:linear-gradient(180deg,#dcfce7,#f0fdf4);
+      border-color:color-mix(in srgb, var(--success) 38%, #fff);
+      background:linear-gradient(180deg,color-mix(in srgb, var(--success) 8%, #fff),#fff);
     }
-    .stage.stageMature .stageTop b{color:#14532d}
+    .stage.stageMature .stageTop b{color:color-mix(in srgb, var(--success) 68%, black)}
     .stage.stageMature .stageTag{
-      color:#166534;
-      border-color:#4ade80;
-      background:#bbf7d0;
+      color:color-mix(in srgb, var(--success) 75%, black);
+      border-color:color-mix(in srgb, var(--success) 38%, #fff);
+      background:color-mix(in srgb, var(--success) 18%, #fff);
     }
     .stageTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
     .stageTop b{font-size:12.5px}
