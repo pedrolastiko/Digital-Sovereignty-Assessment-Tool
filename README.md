@@ -59,9 +59,9 @@ Then open: `http://localhost:8000`
 
 The runnable HTML files are available directly in the repository:
 
-- `index.html` — landing page, choose between v1 and v2
-- `index-v1.html` — original questionnaire
-- `index-v2.html` — updated questionnaire (v2)
+- `index.html` — landing page, choose between the two questionnaires
+- `express-diagnostic.html` — Express Diagnostic, a quick self-assessment
+- `complete-framework.html` — Complete Framework, the full 6-pillar / 31-control / 93-question assessment
 
 You can open any of them directly in a browser, or serve them locally with:
 
