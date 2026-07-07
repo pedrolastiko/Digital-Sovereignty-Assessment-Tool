@@ -36,80 +36,44 @@
       background:var(--bg);
     }
 
-    /* ====== HEADER (CGI-like) ====== */
+    /* ====== HERO (harmonized with the Complete Framework header) ====== */
+    .heroWrap{max-width:1240px;margin:0 auto;padding:24px 18px 4px;position:relative}
+    .heroWrap .langtoggle{position:absolute;top:24px;right:18px;display:inline-flex;border:1px solid var(--border);
+                border-radius:999px;overflow:hidden;background:#fff}
+    .heroWrap .langtoggle button{border:0;background:transparent;font-family:inherit;font-size:12px;font-weight:800;
+                color:var(--muted);padding:7px 14px;cursor:pointer;letter-spacing:.03em}
+    .heroWrap .langtoggle button.on{background:var(--grad);color:#fff}
+    .heroWrap .brand-logo{height:36px;width:auto;display:block;margin-bottom:16px}
+    .heroEyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;
+                letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin:10px 0 12px}
+    .heroEyebrow::before{content:"";width:32px;height:3px;border-radius:2px;background:var(--grad)}
+    .heroWrap h1{font-size:32px;font-weight:900;line-height:1.15;letter-spacing:-.02em;margin:0;max-width:800px;color:var(--ink)}
+    .heroWrap h1 .grad{color:var(--accent-2)}
+    @supports((-webkit-background-clip:text) or (background-clip:text)){
+      .heroWrap h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;
+                         -webkit-text-fill-color:transparent;color:transparent}
+    }
+    .heroLead{margin:0 0 20px;color:var(--muted);font-size:14.5px;line-height:1.62;max-width:760px}
+    .heroLead strong{color:var(--ink);font-weight:700}
+    @media(max-width:560px){
+      .heroWrap h1{font-size:24px}
+      .heroWrap .brand-logo{height:28px}
+      .heroWrap .langtoggle{position:static;margin-bottom:14px}
+    }
+
+    /* ====== HEADER (sticky step nav) ====== */
     .header{
       position:sticky; top:0; z-index:20;
       background:var(--surface);
       border-bottom:1px solid var(--border);
-      box-shadow:0 6px 18px rgba(17,24,39,.05);
+      box-shadow:0 6px 18px rgba(31,35,48,.05);
     }
 
-    .headerTop{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-      padding:12px 18px;
-      max-width:1240px;
-      margin:0 auto;
-    }
-
-    .leftBrand{display:flex; align-items:center; gap:12px}
     .hamburger{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:#fff;display:grid;place-items:center;cursor:pointer}
     .hamburger span{display:block;width:16px;height:2px;background:var(--ink);position:relative}
     .hamburger span::before,.hamburger span::after{content:"";position:absolute;left:0;width:16px;height:2px;background:var(--ink)}
     .hamburger span::before{top:-5px}
     .hamburger span::after{top:5px}
-
-    .logo{display:flex; align-items:center; gap:10px;font-weight:900;}
-    .logoMark{
-      width:38px;height:38px;border-radius:10px;
-      background:rgba(209,26,69,.10);
-      border:1px solid rgba(209,26,69,.25);
-      display:grid;place-items:center;
-      color:var(--cgi-red);
-      user-select:none;
-    }
-    .logoMark svg{width:24px;height:24px;display:block}
-    .logoText{line-height:1.05}
-
-    .rightTools{display:flex; align-items:center; gap:10px}
-
-    /* Language dropdown */
-    .langWrap{position:relative}
-    .lang{
-      display:flex;align-items:center;gap:8px;
-      border:1px solid var(--border);
-      background:#fff;
-      padding:8px 10px;
-      border-radius:999px;
-      font-weight:800;
-      color:var(--ink);
-      cursor:pointer;
-      user-select:none;
-    }
-    .lang .caret{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--muted)}
-
-    .langMenu{
-      position:absolute; right:0; top:44px;
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:12px;
-      box-shadow:0 14px 26px rgba(17,24,39,.10);
-      min-width:160px;
-      padding:6px;
-      display:none;
-      z-index:50;
-    }
-    .langMenu.open{display:block}
-    .langItem{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 10px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:850;
-      color:var(--ink);
-    }
-    .langItem:hover{background:#f3f4f6}
-    .langItem small{color:var(--muted);font-weight:800}
 
     .iconBtn{
       width:36px;height:36px;border-radius:999px;
@@ -445,29 +409,21 @@
 </head>
 <body>
 
+  <!-- Hero (harmonized with the Complete Framework header) -->
+  <div class="heroWrap">
+    <div class="langtoggle" role="group" aria-label="Language">
+      <button type="button" id="langEN" class="on" onclick="setLang('en')">EN</button>
+      <button type="button" id="langFR" onclick="setLang('fr')">FR</button>
+      <button type="button" id="langES" onclick="setLang('es')">ES</button>
+    </div>
+    <img class="brand-logo" alt="CGI" src="data:image/png;base64,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">
+    <h1 id="heroTitle"></h1>
+    <div class="heroEyebrow" id="heroEyebrow"></div>
+    <p class="heroLead" id="heroLead"></p>
+  </div>
+
   <!-- Header -->
   <header class="header">
-    <div class="headerTop">
-      <div class="leftBrand">
-        <div class="logo" aria-label="CGI">
-          <div class="logoMark" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="136" height="136" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe-lock-icon lucide-globe-lock"><path d="M15.686 15A14.5 14.5 0 0 1 12 22a14.5 14.5 0 0 1 0-20 10 10 0 1 0 9.542 13"/><path d="M2 12h8.5"/><path d="M20 6V4a2 2 0 1 0-4 0v2"/><rect width="8" height="5" x="14" y="6" rx="1"/></svg>
-          </div>
-          <div class="logoText" id="appTitle">Digital Sovereignty Assessment Tool</div>
-        </div>
-      </div>
-      <div class="rightTools">
-        <div class="langWrap">
-          <div class="lang" id="langBtn" title="Language">EN <span class="caret"></span></div>
-          <div class="langMenu" id="langMenu" role="menu" aria-label="Language">
-            <div class="langItem" role="menuitem" onclick="setLang('en')">EN <small>English</small></div>
-            <div class="langItem" role="menuitem" onclick="setLang('fr')">FR <small>Français</small></div>
-            <div class="langItem" role="menuitem" onclick="setLang('es')">ES <small>Español</small></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Steps -->
     <div class="stepNav">
       <div class="stepNavInner" id="stepNav"></div>
@@ -523,6 +479,9 @@
   const STR = {
     en: {
       appTitle: 'Digital Sovereignty Assessment Tool',
+      heroEyebrow: 'Express diagnostic',
+      heroTitle: 'How mature is your <span class="grad">digital sovereignty</span>?',
+      heroLead: '<strong>15 questions</strong>, one at a time, for a fast first read on your digital sovereignty maturity — no setup, answers saved locally in your browser.',
       stepsAria: (label)=>`Go to ${label}`,
       questionOf: (i,total)=>`Question ${i} / ${total}`,
       selectToContinue: 'Select a score to continue.',
@@ -575,6 +534,9 @@
     },
     fr: {
       appTitle: 'Outil d\'évaluation de la souveraineté numérique',
+      heroEyebrow: 'Diagnostic express',
+      heroTitle: 'Quelle est la maturité de votre <span class="grad">souveraineté numérique</span>&nbsp;?',
+      heroLead: '<strong>15 questions</strong>, une à la fois, pour un premier état des lieux rapide de votre maturité en souveraineté numérique — sans configuration, réponses enregistrées localement dans votre navigateur.',
       stepsAria: (label)=>`Aller à ${label}`,
       questionOf: (i,total)=>`Question ${i} / ${total}`,
       selectToContinue: 'Sélectionne un score pour continuer.',
@@ -627,6 +589,9 @@
     },
     es: {
       appTitle: 'Herramienta de Evaluación de Soberanía Digital',
+      heroEyebrow: 'Diagnóstico express',
+      heroTitle: '¿Qué tan madura es su <span class="grad">soberanía digital</span>?',
+      heroLead: '<strong>15 preguntas</strong>, una a la vez, para un primer diagnóstico rápido de la madurez de su soberanía digital — sin configuración, respuestas guardadas localmente en su navegador.',
       stepsAria: (label)=>`Ir a ${label}`,
       questionOf: (i,total)=>`Pregunta ${i} / ${total}`,
       selectToContinue: 'Selecciona una puntuación para continuar.',
@@ -1260,10 +1225,10 @@
   const elStepNav = document.getElementById('stepNav');
   const elCompletionLine = document.getElementById('completionLine');
   const elCompletionSub = document.getElementById('completionSub');
-  const elTitle = document.getElementById('appTitle');
-
-  const elLangBtn = document.getElementById('langBtn');
-  const elLangMenu = document.getElementById('langMenu');
+  const elHeroTitle = document.getElementById('heroTitle');
+  const elHeroEyebrow = document.getElementById('heroEyebrow');
+  const elHeroLead = document.getElementById('heroLead');
+  const elLangButtons = { en: document.getElementById('langEN'), fr: document.getElementById('langFR'), es: document.getElementById('langES') };
   const elContactModal = document.getElementById('contactModal');
   const elContactTitle = document.getElementById('contactTitle');
   const elContactDescription = document.getElementById('contactDescription');
@@ -1339,22 +1304,24 @@
   // =======================
   // Language switching
   // =======================
-  function closeLangMenu(){ elLangMenu.classList.remove('open'); }
-  function toggleLangMenu(){ elLangMenu.classList.toggle('open'); }
-
   function normalizeLang(l){
     if(l === 'fr') return 'fr';
     if(l === 'es') return 'es';
     return 'en';
   }
 
+  function updateHeroUI(){
+    elHeroTitle.innerHTML = t().heroTitle;
+    elHeroEyebrow.textContent = t().heroEyebrow;
+    elHeroLead.innerHTML = t().heroLead;
+    Object.keys(elLangButtons).forEach(l=> elLangButtons[l].classList.toggle('on', l===lang));
+  }
+
   function setLang(nextLang){
     lang = normalizeLang(nextLang);
     document.documentElement.lang = lang;
-    elLangBtn.innerHTML = `${lang.toUpperCase()} <span class="caret"></span>`;
-    elTitle.textContent = t().appTitle;
+    updateHeroUI();
     updateContactFormUI();
-    closeLangMenu();
     saveLocal(true);
     render();
   }
@@ -1372,11 +1339,6 @@
   window.closeContactForm = closeContactForm;
   window.submitContactForm = submitContactForm;
 
-  elLangBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    toggleLangMenu();
-  });
-  document.addEventListener('click', ()=> closeLangMenu());
   elContactModal.addEventListener('click', (e)=>{
     if(e.target === elContactModal) closeContactForm();
   });
