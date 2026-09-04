@@ -140,41 +140,37 @@
 
     .qNumber{font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em}
     .qTitle{margin:10px 0 8px;font-size:20px;font-weight:950;line-height:1.25}
+    .qTitle b{color:var(--accent)}
     .qHint{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55}
 
-    /* answer choices */
-    .choiceList{display:flex;flex-direction:column;gap:10px}
-    .choiceItem{
-      --lc:var(--accent);
-      display:flex;align-items:flex-start;gap:12px;
-      padding:12px 12px;
-      border:1px solid var(--border);
+    /* answer choices — same scale layout as the Complete Framework questionnaire */
+    .opts{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+    .opt{
+      --oc:var(--accent);
+      flex:1 1 0;min-width:150px;
+      display:flex;flex-direction:column;align-items:center;
+      text-align:center;gap:10px;
+      padding:14px 10px 16px;
+      border:1.5px solid var(--border);
       border-radius:14px;
       background:#fff;
       cursor:pointer;
+      font-size:13px;line-height:1.4;
       transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
-    .choiceItem:hover{border-color:var(--lc);box-shadow:0 8px 16px color-mix(in srgb, var(--lc) 20%, transparent)}
-    .radio{
-      width:18px;height:18px;border-radius:999px;
-      border:2px solid #c7cdd8;
-      margin-top:2px;
-      position:relative;
-      flex:0 0 auto;
+    .opt:hover{border-color:var(--oc);box-shadow:0 8px 16px color-mix(in srgb, var(--oc) 20%, transparent)}
+    .opt:focus-visible{outline:none;border-color:var(--oc);box-shadow:0 0 0 3px color-mix(in srgb, var(--oc) 35%, transparent)}
+    .opt .lv{
+      flex:none;width:34px;height:34px;border-radius:999px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;font-weight:950;color:#fff;
     }
-    .choiceItem.selected{border-color:var(--lc);background:color-mix(in srgb, var(--lc) 6%, #fff)}
-    .choiceItem.selected .radio{border-color:var(--lc)}
-    .choiceItem.selected .radio::after{content:"";position:absolute;inset:3px;border-radius:999px;background:var(--lc);}
-
-    .choiceText{flex:1}
-    .pillScore{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:26px;height:26px;border-radius:8px;
-      font-weight:950;
-      font-size:13px;
-    }
-    .choiceDesc{margin-top:4px;color:var(--ink);font-size:15.5px;line-height:1.55}
-    .choiceLevel{color:var(--muted);font-size:12.5px;font-weight:600}
+    .opt .ot{color:var(--muted);font-weight:600}
+    .opt.selected{border-color:var(--oc);background:color-mix(in srgb, var(--oc) 8%, #fff);box-shadow:0 0 0 1px var(--oc) inset}
+    .opt.selected .ot{color:var(--ink)}
+    .opt.na{--oc:#9a9aa3}
+    .opt.na .lv{background:#cfd0d6;color:#444;font-size:12.5px}
+    @media(max-width:640px){.opt{min-width:calc(50% - 5px);font-size:12.5px;padding:12px 8px 14px}}
 
     .navRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
     .note{color:var(--muted);font-size:12.5px;line-height:1.35}
@@ -527,6 +523,10 @@
       savedSub: 'Answers are saved locally (browser).',
       savedToast: 'Saved locally.',
       level: (s)=>`Level ${s}`,
+      na: 'Not applicable',
+      naSub: '(excluded from scoring)',
+      naTitle: 'Not applicable — excluded from scoring',
+      notApplicable: 'N/A',
       weightedLabel: 'Weighted',
       identifiedLevel: 'Identified sovereignty level',
       sovereigntyLevels: 'Sovereignty level descriptions',
@@ -582,6 +582,10 @@
       savedSub: 'Réponses sauvegardées localement (browser).',
       savedToast: 'Sauvegardé localement.',
       level: (s)=>`Niveau ${s}`,
+      na: 'Non applicable',
+      naSub: '(exclu du calcul)',
+      naTitle: 'Non applicable — exclu du calcul',
+      notApplicable: 'N/A',
       weightedLabel: 'Pondéré',
       identifiedLevel: 'Niveau de souveraineté identifié',
       sovereigntyLevels: 'Description des niveaux de souveraineté',
@@ -637,6 +641,10 @@
       savedSub: 'Las respuestas se guardan localmente (navegador).',
       savedToast: 'Guardado localmente.',
       level: (s)=>`Nivel ${s}`,
+      na: 'No aplicable',
+      naSub: '(excluido del cálculo)',
+      naTitle: 'No aplicable — excluido del cálculo',
+      notApplicable: 'N/D',
       weightedLabel: 'Ponderado',
       identifiedLevel: 'Nivel de soberanía identificado',
       sovereigntyLevels: 'Descripción de los niveles de soberanía',
@@ -1253,7 +1261,14 @@
       .replaceAll("'",'&#039;');
   }
 
+  // A question counts as answered once a level OR "not applicable" is picked.
   function isAnswered(qid){
+    const v = scores[qid];
+    return isScored(qid) || v==='na';
+  }
+
+  // Only levelled answers feed the score; "not applicable" is excluded.
+  function isScored(qid){
     const v = scores[qid];
     return (v===0||v===1||v===2||v===3||v===4);
   }
@@ -1356,7 +1371,7 @@
 
     if(mode==='summary'){
       const s = buildSynthesis();
-      const {avg, total, sealLabel, sealDesc, weightedPct, objectiveScores, criticalViolations, roadmap, sealLevels} = s;
+      const {avg, total, scoredCount, sealLabel, sealDesc, weightedPct, objectiveScores, criticalViolations, roadmap, sealLevels} = s;
       const arcOffset = 314 - Math.round(314*(weightedPct/100));
       const scoreColor = getScoreColor(weightedPct);
 
@@ -1378,7 +1393,7 @@
               </div>
               <div>
                 <p class="scoreBig scoreBigLevel">${escapeHtml(t().identifiedLevel)}: ${escapeHtml(sealLabel)}</p>
-                <div class="scoreSub">${escapeHtml(t().weightedExplain(weightedPct, avg.toFixed(1), total, QUESTIONS.length * 4))}</div>
+                <div class="scoreSub">${escapeHtml(t().weightedExplain(weightedPct, avg.toFixed(1), total, scoredCount * 4))}</div>
               </div>
             </div>
             <div class="gaugeWrap">
@@ -1403,15 +1418,18 @@
             </div>
             <div class="breakdown">
               ${objectiveScores.map(o=>{
-                const pct = Math.round((o.now/4)*100);
+                const pct = o.applicable ? Math.round((o.now/4)*100) : 0;
+                const detail = o.applicable
+                  ? `${escapeHtml(t().weight)} ${o.weight}% · Next ${o.next} · Gap ${o.gap.toFixed(1)}`
+                  : escapeHtml(t().naTitle);
                 return `
                   <div class="barRow">
                     <div class="barLbl">${escapeHtml(o.name)}</div>
                     <div class="bar"><div class="barFill" style="width:${pct}%"></div></div>
-                    <div class="barVal">${o.now.toFixed(1)}</div>
+                    <div class="barVal">${o.applicable ? o.now.toFixed(1) : escapeHtml(t().notApplicable)}</div>
                   </div>
                   <div style="margin:-6px 0 8px 0;color:var(--muted);font-size:12.5px;line-height:1.35">
-                    ${escapeHtml(t().weight)} ${o.weight}% · Next ${o.next} · Gap ${o.gap.toFixed(1)}
+                    ${detail}
                   </div>
                 `;
               }).join('')}
@@ -1501,21 +1519,27 @@
 
     elBody.innerHTML = `
       <div class="qNumber">${escapeHtml(qLabel)} · ${escapeHtml(t().questionOf(idx+1, QUESTIONS.length))}</div>
-      <div class="qTitle">${escapeHtml(qTitle)}</div>
+      <div class="qTitle"><b>Q${idx+1}.</b> ${escapeHtml(qTitle)}</div>
       <p class="qHint">${escapeHtml(qHint)}</p>
 
-      <div class="choiceList" role="radiogroup" aria-label="Maturity choices">
+      <div class="opts" role="radiogroup" aria-label="Maturity choices">
         ${levels.map((desc, score)=>{
           const selected = (scores[q.id] === score);
           return `
-            <div class="choiceItem ${selected?'selected':''}" style="--lc:${CMMI[score]}" onclick="pick('${q.id}', ${score})" role="radio" aria-checked="${selected}">
-              <div class="radio"></div>
-              <div class="choiceText">
-                <div class="choiceDesc"><span class="pillScore" style="background:${CMMI[score]};color:${CMMI_TEXT(score)}">${score}</span> <b>${escapeHtml(desc)}</b> <span class="choiceLevel">— ${escapeHtml(t().level(score))}</span></div>
-              </div>
+            <div class="opt ${selected?'selected':''}" style="--oc:${CMMI[score]}"
+                 onclick="pick('${q.id}', ${score})" onkeydown="optKey(event, '${q.id}', ${score})"
+                 role="radio" aria-checked="${selected}" tabindex="0" title="${escapeHtml(t().level(score))}">
+              <span class="lv" style="background:${CMMI[score]};color:${CMMI_TEXT(score)}">${score}</span>
+              <span class="ot">${escapeHtml(desc)}</span>
             </div>
           `;
         }).join('')}
+        <div class="opt na ${scores[q.id]==='na' ? 'selected':''}"
+             onclick="pick('${q.id}', 'na')" onkeydown="optKey(event, '${q.id}', 'na')"
+             role="radio" aria-checked="${scores[q.id]==='na'}" tabindex="0" title="${escapeHtml(t().naTitle)}">
+          <span class="lv">N/A</span>
+          <span class="ot">${escapeHtml(t().na)}<br>${escapeHtml(t().naSub)}</span>
+        </div>
       </div>
 
       <div class="navRow">
@@ -1532,6 +1556,10 @@
   // Actions
   // =======================
   function pick(qid, score){ scores[qid] = score; render(); }
+
+  function optKey(ev, qid, score){
+    if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); pick(qid, score); }
+  }
 
   function next(){
     const q = QUESTIONS[idx];
@@ -1555,7 +1583,7 @@
     const synthesis = buildSynthesis();
     const header = `${t().summaryTitle}\n${t().overallScore}: ${synthesis.weightedPct}% (${synthesis.sealLabel})`;
     const scoresDetails = QUESTIONS.map((q)=>{
-      const score = isAnswered(q.id) ? scores[q.id] : 'N/A';
+      const score = isScored(q.id) ? scores[q.id] : (scores[q.id]==='na' ? t().notApplicable : '-');
       return `${q.id} - ${q.label[lang]}\n${q.title[lang]}\nScore: ${score}`;
     }).join('\n\n');
 
@@ -1635,7 +1663,8 @@
       { name: (lang==='fr' ? 'Capacité locale & écosystème' : (lang==='es' ? 'Capacidad local y ecosistema' : 'Local capacity & ecosystem')), weight:8, qids:['Q15'] },
     ];
 
-    const vals = QUESTIONS.map(q => (scores[q.id] ?? null)).filter(v => v !== null);
+    // "Not applicable" answers are dropped before any averaging.
+    const vals = QUESTIONS.filter(q => isScored(q.id)).map(q => scores[q.id]);
     const total = vals.reduce((a,b)=>a+b,0);
     const avg = vals.length ? total / vals.length : 0;
 
@@ -1662,15 +1691,18 @@
     const sealBand = Math.max(0, Math.min(4, Math.round(avg)));
 
     const objectiveScores = objectives.map(o => {
-      const qs = o.qids.map(id => scores[id]).filter(v => v===0||v===1||v===2||v===3||v===4);
+      const qs = o.qids.filter(id => isScored(id)).map(id => scores[id]);
       const now = qs.length ? (qs.reduce((a,b)=>a+b,0) / qs.length) : 0;
       const next = Math.min(4, Math.ceil(now + 0.75));
       const gap = Math.max(0, next - now);
-      return { name:o.name, weight:o.weight, now, next, gap };
+      // An objective whose questions are all "not applicable" is left out of the weighting.
+      return { name:o.name, weight:o.weight, now, next, gap, applicable: qs.length > 0 };
     });
 
-    const weightedScore = objectiveScores.reduce((sum, o) => sum + (o.weight * (o.now/4)), 0);
-    const weightedPct = Math.round(weightedScore);
+    const assessed = objectiveScores.filter(o => o.applicable);
+    const weightTotal = assessed.reduce((sum, o) => sum + o.weight, 0);
+    const weightedScore = assessed.reduce((sum, o) => sum + (o.weight * (o.now/4)), 0);
+    const weightedPct = weightTotal ? Math.round((weightedScore / weightTotal) * 100) : 0;
 
     const fundamentals = (lang==='fr') ? [
       { qid:'Q2', name:'Résidence et cycle de vie des données' },
@@ -1701,6 +1733,7 @@
     return {
       avg,
       total,
+      scoredCount: vals.length,
       sealBand,
       sealLabel: sealInfo[sealBand].label,
       sealDesc: sealInfo[sealBand].desc,
@@ -1882,6 +1915,19 @@
       const s = buildSynthesis();
       console.assert(typeof s.weightedPct === 'number', 'weightedPct should be number');
       console.assert(Array.isArray(s.objectiveScores), 'objectiveScores should be array');
+      console.assert(s.scoredCount === QUESTIONS.length, 'every question should count when all are levelled');
+
+      // "Not applicable" must leave the score untouched, only shrink the counted base.
+      for(const k of Object.keys(scores)) delete scores[k];
+      QUESTIONS.forEach(q => scores[q.id] = 4);
+      const allFour = buildSynthesis();
+      scores[QUESTIONS[0].id] = 'na';
+      const withNa = buildSynthesis();
+      console.assert(isAnswered(QUESTIONS[0].id), 'a N/A answer should count as answered');
+      console.assert(!isScored(QUESTIONS[0].id), 'a N/A answer should not be scored');
+      console.assert(withNa.scoredCount === allFour.scoredCount - 1, 'N/A should shrink the scored base');
+      console.assert(withNa.weightedPct === allFour.weightedPct, 'N/A should not drag the weighted score down');
+
       for(const k of Object.keys(scores)) delete scores[k];
       Object.assign(scores, old);
     }catch(e){console.error('Self-test failed', e)}
