@@ -108,13 +108,15 @@
       background:#fff;
       flex:0 0 auto;
     }
-    .badge.done{background:rgba(43,166,114,.12);border-color:rgba(43,166,114,.35);color:var(--success)}
+    /* An answered step is painted with the colour of the level the user picked
+       (--sc/--st, set inline); the fallbacks cover steps with no answer yet. */
+    .badge.done{background:var(--sc,rgba(43,166,114,.12));border-color:var(--sc,rgba(43,166,114,.35));color:var(--st,var(--success))}
     .badge.active{background:rgba(124,39,128,.10);border-color:rgba(124,39,128,.25);color:var(--accent)}
 
     .stepBar{height:6px;border-radius:999px;background:var(--border);overflow:hidden}
     .stepBar .fill{height:100%;width:0%;background:var(--grad)}
     .step.active .stepBar .fill{width:65%}
-    .step.done .stepBar .fill{width:100%;background:var(--grad)}
+    .step.done .stepBar .fill{width:100%;background:var(--sc,var(--grad))}
 
     /* ====== MAIN LAYOUT ====== */
     .page{max-width:1240px;margin:18px auto 0;padding:0 18px calc(var(--bottom-bar-space) + 20px);}
@@ -1225,6 +1227,15 @@
   const scores = {}; // {Q1:0..4}
   const CMMI = ['#E5484D','#F2843B','#E5B23C','#84B53F','#2BA672']; // same 0-4 palette as the Complete Framework questionnaire
   const CMMI_TEXT = (score)=> score===2 ? '#5a4410' : '#fff';
+  const NA_COLOR = '#cfd0d6';  // matches the N/A answer card
+  const NA_TEXT = '#444';
+
+  // Colour a question carries once answered: its level colour, or grey for N/A.
+  function answerColor(qid){
+    if(isScored(qid)) return { bg: CMMI[scores[qid]], fg: CMMI_TEXT(scores[qid]) };
+    if(scores[qid] === 'na') return { bg: NA_COLOR, fg: NA_TEXT };
+    return null;
+  }
 
   // =======================
   // DOM
@@ -1303,9 +1314,11 @@
       const badgeCls = `badge ${done?'done':(active?'active':'')}`;
       const badgeText = done ? '✓' : (i+1);
       const label = q.label[lang];
+      const col = answerColor(q.id);
+      const style = col ? `--sc:${col.bg};--st:${col.fg}` : '';
 
       return `
-        <div class="${cls}" onclick="goto(${i})" role="button" tabindex="0" aria-label="${escapeHtml(t().stepsAria(label))}">
+        <div class="${cls}" style="${style}" onclick="goto(${i})" role="button" tabindex="0" aria-label="${escapeHtml(t().stepsAria(label))}">
           <div class="stepTop">
             <div class="stepLabel">${escapeHtml(label)}</div>
             <div class="${badgeCls}">${badgeText}</div>
