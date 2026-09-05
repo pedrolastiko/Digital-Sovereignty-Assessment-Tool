@@ -774,7 +774,7 @@
       label: { en:'Portability & reversibility', fr:'Portabilité & réversibilité', es:'Portabilidad y reversibilidad' },
       title: {
         en: 'Can you exit or move critical workloads?',
-        fr: 'Pouvez-vous sortir ou déplacer des environements de production critiques ?',
+        fr: 'Pouvez-vous sortir ou déplacer des environnements de production critiques ?',
         es: '¿Puede salir o mover cargas de trabajo críticas?'
       },
       hint: {
@@ -1230,6 +1230,12 @@
   const NA_COLOR = '#cfd0d6';  // matches the N/A answer card
   const NA_TEXT = '#444';
 
+  // The label a question shows in the step navigation, in the current language.
+  function questionLabel(qid){
+    const q = QUESTIONS.find(x => x.id === qid);
+    return q ? q.label[lang] : qid;
+  }
+
   // Colour a question carries once answered: its level colour, or grey for N/A.
   function answerColor(qid){
     if(isScored(qid)) return { bg: CMMI[scores[qid]], fg: CMMI_TEXT(scores[qid]) };
@@ -1663,17 +1669,20 @@
   // Synthesis
   // =======================
   function buildSynthesis(){
+    // Objectives covering a single question borrow that question's own label, so
+    // the breakdown always reads with the same wording as the step navigation.
+    // Objectives spanning several questions carry a name combining theirs.
     const objectives = [
-      { name: (lang==='fr' ? 'Souveraineté stratégique' : (lang==='es' ? 'Soberanía estratégica' : 'Strategic sovereignty')), weight:10, qids:['Q1','Q10'] },
-      { name: (lang==='fr' ? 'Juridique & juridiction' : (lang==='es' ? 'Legal y jurisdiccional' : 'Legal & jurisdictional')), weight:8, qids:['Q3'] },
-      { name: (lang==='fr' ? 'Données (résidence & cycle de vie)' : (lang==='es' ? 'Datos (residencia y ciclo de vida)' : 'Data (residency & lifecycle)')), weight:8, qids:['Q2'] },
-      { name: (lang==='fr' ? 'Souveraineté opérationnelle' : (lang==='es' ? 'Soberanía operativa' : 'Operational sovereignty')), weight:10, qids:['Q6'] },
-      { name: (lang==='fr' ? 'Souveraineté supply chain' : (lang==='es' ? 'Soberanía de cadena de suministro' : 'Supply chain sovereignty')), weight:12, qids:['Q7'] },
-      { name: (lang==='fr' ? 'Technologie (portabilité & lock-in)' : (lang==='es' ? 'Tecnología (portabilidad y lock-in)' : 'Technology (portability & lock-in)')), weight:13, qids:['Q4','Q5'] },
-      { name: (lang==='fr' ? 'Sécurité, assurance & preuves' : (lang==='es' ? 'Seguridad, aseguramiento y evidencia' : 'Security, assurance & evidence')), weight:10, qids:['Q8','Q9'] },
-      { name: (lang==='fr' ? 'IA souveraine' : (lang==='es' ? 'IA soberana' : 'Sovereign AI')), weight:13, qids:['Q11','Q12','Q13'] },
-      { name: (lang==='fr' ? 'Acceptabilité & confiance' : (lang==='es' ? 'Aceptación y confianza' : 'Acceptance & trust')), weight:8, qids:['Q14'] },
-      { name: (lang==='fr' ? 'Capacité locale & écosystème' : (lang==='es' ? 'Capacidad local y ecosistema' : 'Local capacity & ecosystem')), weight:8, qids:['Q15'] },
+      { name: (lang==='fr' ? 'Gouvernance, stratégie & capacités' : (lang==='es' ? 'Gobernanza, estrategia y capacidades' : 'Governance, strategy & capabilities')), weight:10, qids:['Q1','Q10'] },
+      { name: questionLabel('Q3'), weight:8, qids:['Q3'] },
+      { name: questionLabel('Q2'), weight:8, qids:['Q2'] },
+      { name: questionLabel('Q6'), weight:10, qids:['Q6'] },
+      { name: questionLabel('Q7'), weight:12, qids:['Q7'] },
+      { name: (lang==='fr' ? 'Portabilité & lock-in' : (lang==='es' ? 'Portabilidad y lock-in' : 'Portability & lock-in')), weight:13, qids:['Q4','Q5'] },
+      { name: (lang==='fr' ? 'Auditabilité & contrôles de sécurité' : (lang==='es' ? 'Auditabilidad y controles de seguridad' : 'Auditability & security controls')), weight:10, qids:['Q8','Q9'] },
+      { name: (lang==='fr' ? 'IA — Provenance, calcul & gouvernance' : (lang==='es' ? 'IA — Procedencia, cómputo y gobernanza' : 'AI — provenance, compute & governance')), weight:13, qids:['Q11','Q12','Q13'] },
+      { name: questionLabel('Q14'), weight:8, qids:['Q14'] },
+      { name: questionLabel('Q15'), weight:8, qids:['Q15'] },
     ];
 
     // "Not applicable" answers are dropped before any averaging.
@@ -1717,25 +1726,8 @@
     const weightedScore = assessed.reduce((sum, o) => sum + (o.weight * (o.now/4)), 0);
     const weightedPct = weightTotal ? Math.round((weightedScore / weightTotal) * 100) : 0;
 
-    const fundamentals = (lang==='fr') ? [
-      { qid:'Q2', name:'Résidence et cycle de vie des données' },
-      { qid:'Q3', name:'Contrôles d’accès extraterritorial' },
-      { qid:'Q9', name:'Contrôle IAM / clés / monitoring' },
-      { qid:'Q11', name:'Provenance et lignée IA' },
-      { qid:'Q12', name:'Calcul IA et juridictions de confiance' },
-    ] : (lang==='es') ? [
-      { qid:'Q2', name:'Residencia y ciclo de vida de datos' },
-      { qid:'Q3', name:'Controles de acceso extraterritorial' },
-      { qid:'Q9', name:'Control de IAM/llaves/monitoreo' },
-      { qid:'Q11', name:'Procedencia y linaje de IA' },
-      { qid:'Q12', name:'Cómputo de IA y jurisdicciones de confianza' },
-    ] : [
-      { qid:'Q2', name:'Data residency & lifecycle' },
-      { qid:'Q3', name:'Extraterritorial access controls' },
-      { qid:'Q9', name:'Control of IAM/keys/monitoring' },
-      { qid:'Q11', name:'AI provenance and lineage' },
-      { qid:'Q12', name:'AI compute and trusted jurisdictions' },
-    ];
+    // The fundamentals are single questions, so they are named by their label too.
+    const fundamentals = ['Q2','Q3','Q9','Q11','Q12'].map(qid => ({ qid, name: questionLabel(qid) }));
 
     const criticalViolations = fundamentals
       .filter(f => (scores[f.qid] === 0 || scores[f.qid] === 1 || scores[f.qid] === 2))
