@@ -372,7 +372,17 @@
     .stageTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
     .stageTop b{font-size:12.5px}
     .stageTag{font-size:12px;font-weight:950;color:var(--accent);border:1px solid rgba(124,39,128,.25);background:rgba(124,39,128,.06);padding:4px 10px;border-radius:999px}
-    .stage ul{margin:0;padding-left:18px;color:var(--ink);font-size:13px;line-height:1.35}
+    .stage ul{margin:0;padding-left:18px;color:var(--ink);font-size:13px;line-height:1.35;display:grid;gap:8px}
+    .stage li .rmPitch{color:var(--muted)}
+    /* CGI resource attached to a recommendation (blog article, offering or news item) */
+    .rmLink{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px;font-weight:800;
+            color:var(--accent);text-decoration:none;font-size:12.5px;line-height:1.3}
+    .rmLink:hover,.rmLink:focus-visible{text-decoration:underline}
+    .rmLink .rmType{font-size:10.5px;font-weight:950;letter-spacing:.05em;text-transform:uppercase;
+                    color:var(--accent);border:1px solid rgba(124,39,128,.25);background:rgba(124,39,128,.06);
+                    padding:2px 7px;border-radius:999px;white-space:nowrap}
+    .rmLink .rmLang{font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap}
+    .roadmapNote{margin:10px 0 0;color:var(--muted);font-size:12.5px;line-height:1.4}
 
     .divider{height:1px;background:var(--border);margin:14px 0}
 
@@ -402,6 +412,9 @@
       .card{border:none;box-shadow:none;border-radius:0;}
       #summaryReport .navRow{display:none !important;}
       #summaryReport{padding:0;}
+      /* Keep the CGI resource usable on paper: print the full URL after the title. */
+      .rmLink{color:var(--ink);}
+      .rmLink::after{content:" " attr(href);font-weight:400;color:var(--muted);word-break:break-all;}
     }
   </style>
 </head>
@@ -505,6 +518,9 @@
       stabilize: 'Stabilize',
       deploy: 'Deploy',
       optimize: 'Optimize',
+      goFurther: 'Go further with CGI',
+      resourceNote: 'Each recommendation links to the closest CGI blog article or offering. Links open cgi.com in a new tab.',
+      resourceType: { blog:'CGI blog', offer:'CGI offering', press:'CGI news' },
       restart: 'Restart',
       exportPdf: 'Export PDF',
       contactExpert: 'Contact an expert',
@@ -564,6 +580,9 @@
       stabilize: 'Stabiliser',
       deploy: 'Déployer',
       optimize: 'Optimiser',
+      goFurther: 'Aller plus loin avec CGI',
+      resourceNote: 'Chaque recommandation renvoie vers l’article de blog ou l’offre CGI la plus proche. Les liens ouvrent cgi.com dans un nouvel onglet.',
+      resourceType: { blog:'Blog CGI', offer:'Offre CGI', press:'Actualité CGI' },
       restart: 'Recommencer',
       exportPdf: 'Exporter en PDF',
       contactExpert: 'Contacter un expert',
@@ -623,6 +642,9 @@
       stabilize: 'Estabilizar',
       deploy: 'Desplegar',
       optimize: 'Optimizar',
+      goFurther: 'Ir más lejos con CGI',
+      resourceNote: 'Cada recomendación enlaza con el artículo de blog o la oferta de CGI más cercana. Los enlaces abren cgi.com en una nueva pestaña.',
+      resourceType: { blog:'Blog CGI', offer:'Oferta CGI', press:'Noticia CGI' },
       restart: 'Reiniciar',
       exportPdf: 'Exportar PDF',
       contactExpert: 'Contactar a un experto',
@@ -1484,21 +1506,22 @@
           <div class="timeline">
             <div class="stage stageUrgent">
               <div class="stageTop"><b>${escapeHtml(t().days0_30)}</b><span class="stageTag">${escapeHtml(t().quickWins)}</span></div>
-              <ul>${roadmap.quick.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+              <ul>${roadmap.quick.map(renderRoadmapItem).join('')}</ul>
             </div>
             <div class="stage stageNearTerm">
               <div class="stageTop"><b>${escapeHtml(t().days30_90)}</b><span class="stageTag">${escapeHtml(t().stabilize)}</span></div>
-              <ul>${roadmap.stabilize.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+              <ul>${roadmap.stabilize.map(renderRoadmapItem).join('')}</ul>
             </div>
             <div class="stage stageGrowth">
               <div class="stageTop"><b>${escapeHtml(t().months3_6)}</b><span class="stageTag">${escapeHtml(t().deploy)}</span></div>
-              <ul>${roadmap.scale.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+              <ul>${roadmap.scale.map(renderRoadmapItem).join('')}</ul>
             </div>
             <div class="stage stageMature">
               <div class="stageTop"><b>${escapeHtml(t().months6_12)}</b><span class="stageTag">${escapeHtml(t().optimize)}</span></div>
-              <ul>${roadmap.optimize.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>
+              <ul>${roadmap.optimize.map(renderRoadmapItem).join('')}</ul>
             </div>
           </div>
+          <p class="roadmapNote">${escapeHtml(t().resourceNote)}</p>
 
           <div class="levelDescriptions">
             <h4>${escapeHtml(t().sovereigntyLevels)}</h4>
@@ -1765,136 +1788,331 @@
     return `hsl(${hue} 78% 42%)`;
   }
 
+  // =======================
+  // Roadmap recommendations
+  // =======================
+  // Each recommendation carries the action itself, a short pitch that invites the
+  // reader to go further, and the closest CGI blog article / offering / news item
+  // (any language, any region). A recommendation without a resource is shown as is.
+  // The mapping is documented in RESSOURCES-CGI.md.
+  const ROADMAP_ITEMS = [
+    // ---- 0-30 days: quick wins (triggered by a weak fundamental, then two generic ones)
+    {
+      id:'q2-map-data', stage:'quick', onlyIf:'Q2',
+      action:{
+        en:'Map the residency and flows of your critical data (storage, processing, backups, DR, transfers) and clarify who owns them.',
+        fr:'Cartographier la résidence et les flux de vos données critiques (stockage, traitement, backup, DR, transferts) et clarifier qui en est propriétaire.',
+        es:'Mapear la residencia y los flujos de sus datos críticos (almacenamiento, procesamiento, copias, DR, transferencias) y aclarar quién es su propietario.'
+      },
+      pitch:{
+        en:'CGI explains why clear data ownership is the first step towards control.',
+        fr:'CGI explique pourquoi une propriété des données claire est le premier pas vers la maîtrise.',
+        es:'CGI explica por qué una propiedad clara de los datos es el primer paso hacia el control.'
+      },
+      resource:{ type:'blog', title:'Clear data ownership paves the way for data-driven manufacturing', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/blog/manufacturing/clear-data-ownership-paves-way-data-driven-manufacturing' }
+    },
+    {
+      id:'q3-clauses', stage:'quick', onlyIf:'Q3',
+      action:{
+        en:'Add sovereignty clauses (support location, subcontracting, government access) and an extraterritorial exposure checklist.',
+        fr:'Ajouter des clauses de souveraineté (localisation du support, sous-traitance, accès gouvernemental) et une checklist d’exposition extraterritoriale.',
+        es:'Agregar cláusulas de soberanía (ubicación del soporte, subcontratación, acceso gubernamental) y un checklist de exposición extraterritorial.'
+      },
+      pitch:{
+        en:'See how CGI makes the boundaries of your systems and data verifiable.',
+        fr:'Découvrez comment CGI rend les frontières de vos systèmes et données vérifiables.',
+        es:'Descubra cómo CGI hace verificables los límites de sus sistemas y datos.'
+      },
+      resource:{ type:'blog', title:'Building sovereign trust in defense and intelligence by securing resilient digital ecosystems', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/blog/defense-intelligence/building-sovereign-trust-defense-intelligence-secure-resilient-digital-ecosystems' }
+    },
+    {
+      id:'q9-keys-iam', stage:'quick', onlyIf:'Q9',
+      action:{
+        en:'Clarify key and IAM custody, enable break-glass access and independent baseline logging.',
+        fr:'Clarifier la custody des clés et de l’IAM, activer un accès break-glass et une journalisation minimale indépendante.',
+        es:'Aclarar la custodia de llaves e IAM, habilitar acceso break-glass y logging base independiente.'
+      },
+      pitch:{
+        en:'CGI managed security services (IAM, monitoring, SOC) can help you regain that control.',
+        fr:'Les services de sécurité managés CGI (IAM, supervision, SOC) peuvent vous aider à reprendre ce contrôle.',
+        es:'Los servicios de seguridad gestionados de CGI (IAM, monitoreo, SOC) pueden ayudarle a recuperar ese control.'
+      },
+      resource:{ type:'offer', title:'Managed security services', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/cybersecurity/managed-security-services' }
+    },
+    {
+      id:'q11-ai-inventory', stage:'quick', onlyIf:'Q11',
+      action:{
+        en:'Inventory your critical AI models, datasets, system prompts, embeddings, licenses and ML dependencies.',
+        fr:'Inventorier vos modèles IA, datasets, prompts système, embeddings, licences et dépendances ML critiques.',
+        es:'Inventariar sus modelos de IA, datasets, prompts de sistema, embeddings, licencias y dependencias ML críticas.'
+      },
+      pitch:{
+        en:'CGI’s sovereign AI approach puts model provenance and lineage at the heart of control.',
+        fr:'L’approche IA souveraine de CGI place la provenance et la lignée des modèles au cœur du contrôle.',
+        es:'El enfoque de IA soberana de CGI sitúa la procedencia y el linaje de los modelos en el centro del control.'
+      },
+      resource:{ type:'offer', title:'Sovereign AI', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/artificial-intelligence/sovereign-ai' }
+    },
+    {
+      id:'q12-ai-map', stage:'quick', onlyIf:'Q12',
+      action:{
+        en:'Map where your AI workloads are trained, fine-tuned, executed and monitored, and the jurisdictions involved.',
+        fr:'Cartographier où vos workloads IA sont entraînés, affinés, exécutés et supervisés, ainsi que les juridictions associées.',
+        es:'Mapear dónde se entrenan, ajustan, ejecutan y supervisan sus cargas de IA, y las jurisdicciones asociadas.'
+      },
+      pitch:{
+        en:'See how CGI runs a sovereign AI platform in a KATAKRI-certified environment.',
+        fr:'Voyez comment CGI opère une plateforme IA souveraine dans un environnement certifié KATAKRI.',
+        es:'Vea cómo CGI opera una plataforma de IA soberana en un entorno certificado KATAKRI.'
+      },
+      resource:{ type:'press', title:'CGI launches high-security sovereign AI platform in Finland', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/cgi-launches-high-security-sovereign-ai-platform-finland-enterprise-public-sector-use' }
+    },
+    {
+      id:'top5-dependencies', stage:'quick',
+      action:{
+        en:'Identify your top 5 critical dependencies and document hard dependencies (regions, support, operations).',
+        fr:'Identifier le Top 5 de vos dépendances critiques et documenter les hard dependencies (régions, support, opérations).',
+        es:'Identificar sus 5 dependencias críticas y documentar las dependencias duras (regiones, soporte, operaciones).'
+      },
+      pitch:{
+        en:'CGI describes sovereignty as resilient autonomy built on informed dependency choices.',
+        fr:'CGI décrit la souveraineté comme une autonomie résiliente fondée sur des choix de dépendances éclairés.',
+        es:'CGI describe la soberanía como una autonomía resiliente basada en decisiones informadas sobre dependencias.'
+      },
+      resource:{ type:'blog', title:'Resilient by design: Connecting cybersecurity and digital sovereignty in manufacturing', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/blog/manufacturing/resilient-by-design-connecting-cybersecurity-digital-sovereignty-in-manufacturing' }
+    },
+    {
+      id:'exit-plan', stage:'quick',
+      action:{
+        en:'Select one flagship workload and draft a realistic exit plan (target, constraints, cost, timeline).',
+        fr:'Choisir un workload phare et produire un exit plan réaliste (cible, contraintes, coûts, délais).',
+        es:'Elegir una carga clave y elaborar un plan de salida realista (objetivo, restricciones, costo, plazo).'
+      },
+      pitch:{
+        en:'CGI’s cloud experts remind us that an exit strategy is vital but rarely in place.',
+        fr:'Les experts cloud de CGI rappellent qu’une stratégie de sortie est vitale mais rarement en place.',
+        es:'Los expertos en nube de CGI recuerdan que una estrategia de salida es vital pero rara vez existe.'
+      },
+      resource:{ type:'blog', title:'A cloud exit strategy is vital but rare', lang:'EN', region:'Denmark',
+        url:'https://www.cgi.com/dk/da/blog/cloud-hybrid-it/cloud-exit-strategy-vital-rare' }
+    },
+
+    // ---- 30-90 days: stabilize
+    {
+      id:'governance', stage:'stabilize',
+      action:{
+        en:'Formalize sovereignty governance (decision rights) and architecture guardrails.',
+        fr:'Formaliser la gouvernance souveraineté (decision rights) et des guardrails d’architecture.',
+        es:'Formalizar la gobernanza de soberanía (derechos de decisión) y guardrails de arquitectura.'
+      },
+      pitch:{
+        en:'For CGI, sovereignty is not declared: it is engineered through governance, architecture and culture.',
+        fr:'Pour CGI, la souveraineté ne se décrète pas : elle se construit par la gouvernance, l’architecture et la culture.',
+        es:'Para CGI, la soberanía no se decreta: se construye mediante gobernanza, arquitectura y cultura.'
+      },
+      resource:{ type:'blog', title:'Digital sovereignty: A leadership imperative to redefine control', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/blog/data-analytics/digital-sovereignty-leadership-imperative-redefine-control' }
+    },
+    {
+      id:'dependency-register', stage:'stabilize',
+      action:{
+        en:'Build a dependency register including subcontractors and critical open source components.',
+        fr:'Construire un registre des dépendances incluant sous-traitants et composants open source critiques.',
+        es:'Construir un registro de dependencias que incluya subcontratistas y componentes open source críticos.'
+      },
+      pitch:{
+        en:'CGI details how an automated, continuously monitored SBOM structures that register.',
+        fr:'CGI détaille comment un SBOM automatisé et surveillé en continu structure ce registre.',
+        es:'CGI detalla cómo un SBOM automatizado y monitoreado de forma continua estructura ese registro.'
+      },
+      resource:{ type:'blog', title:'Software bill of materials: What you need to know', lang:'EN', region:'United States',
+        url:'https://www.cgi.com/us/en-us/federal/blog/sbom-what-you-need-know' }
+    },
+    {
+      id:'responsible-ai-guardrails', stage:'stabilize',
+      action:{
+        en:'Define your responsible AI guardrails: human oversight, usage policies, explainability, red teaming and kill switch.',
+        fr:'Définir vos guardrails d’IA responsable : supervision humaine, politiques d’usage, explicabilité, red teaming et kill switch.',
+        es:'Definir sus guardrails de IA responsable: supervisión humana, políticas de uso, explicabilidad, red teaming y kill switch.'
+      },
+      pitch:{
+        en:'CGI’s Responsible AI framework gives you a proven basis to formalize them.',
+        fr:'Le cadre Responsible AI de CGI vous donne une base éprouvée pour les formaliser.',
+        es:'El marco Responsible AI de CGI le ofrece una base probada para formalizarlos.'
+      },
+      resource:{ type:'offer', title:'Responsible AI', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/artificial-intelligence/responsible-ai' }
+    },
+    {
+      id:'provider-tabletop', stage:'stabilize',
+      action:{
+        en:'Run a provider-disruption tabletop exercise and validate your recovery runbooks.',
+        fr:'Tester un scénario d’indisponibilité fournisseur (tabletop) et valider vos runbooks de reprise.',
+        es:'Ejecutar un tabletop de interrupción del proveedor y validar sus runbooks de recuperación.'
+      },
+      pitch:{
+        en:'CGI draws the lessons of the July 2024 global outage for your business continuity.',
+        fr:'CGI tire les leçons de la panne mondiale de juillet 2024 pour votre continuité d’activité.',
+        es:'CGI extrae las lecciones de la interrupción global de julio de 2024 para su continuidad de negocio.'
+      },
+      resource:{ type:'blog', title:'Global IT outage – The importance of business continuity', lang:'EN', region:'Canada',
+        url:'https://www.cgi.com/canada/en-ca/blog/cybersecurity/global-it-outage-importance-business-continuity' }
+    },
+
+    // ---- 3-6 months: deploy
+    {
+      id:'reversibility-exercise', stage:'scale',
+      action:{
+        en:'Execute one reversibility exercise (pilot migration or DR relocation) and capture lessons learned.',
+        fr:'Réaliser un exercice de réversibilité (migration pilote ou relocation DR) et capitaliser les leçons apprises.',
+        es:'Ejecutar un ejercicio de reversibilidad (migración piloto o reubicación DR) y capturar aprendizajes.'
+      },
+      pitch:{
+        en:'CGI lists the elements of an executable exit strategy: scope, timeline, contract.',
+        fr:'CGI liste les éléments d’une stratégie de sortie exécutable : périmètre, délais, contrat.',
+        es:'CGI enumera los elementos de una estrategia de salida ejecutable: alcance, plazos, contrato.'
+      },
+      resource:{ type:'blog', title:'Do you have a cloud EXIT strategy?', lang:'EN', region:'Denmark',
+        url:'https://www.cgi.com/dk/da/blog/cloud-hybrid-it/do-you-have-cloud-exit-strategy' }
+    },
+    {
+      id:'residency-controls', stage:'scale',
+      action:{
+        en:'Implement residency controls by data class (policy, controls, monitoring).',
+        fr:'Déployer des contrôles de résidence par classe de données (politique, contrôles, monitoring).',
+        es:'Implementar controles de residencia por clase de datos (política, controles, monitoreo).'
+      },
+      pitch:{
+        en:'CGI’s SovereignOps model shows how to align cloud operations with data sovereignty rules.',
+        fr:'Le modèle SovereignOps de CGI montre comment aligner l’exploitation cloud sur les règles de souveraineté des données.',
+        es:'El modelo SovereignOps de CGI muestra cómo alinear la operación en la nube con las reglas de soberanía de datos.'
+      },
+      resource:{ type:'blog', title:'Secure, sustainable and sovereign – a joined-up future for cloud operations', lang:'EN', region:'United Kingdom',
+        url:'https://www.cgi.com/uk/en-gb/blog/managed-it-outsourcing-services/secure-sustainable-and-sovereign-joined-future-cloud' }
+    },
+    {
+      id:'evidence-pack', stage:'scale',
+      action:{
+        en:'Build an audit-ready evidence pack: logs, attestations, access traceability, key custody model.',
+        fr:'Constituer un evidence pack audit-ready : logs, attestations, traçabilité des accès, modèle de custody des clés.',
+        es:'Crear un paquete de evidencia audit-ready: logs, atestaciones, trazabilidad de acceso, modelo de custodia de llaves.'
+      },
+      pitch:{
+        en:'CGI’s cyber advisory covers audit, internal control and the integration of control frameworks.',
+        fr:'Le conseil cyber de CGI couvre l’audit, le contrôle interne et l’intégration des référentiels.',
+        es:'La asesoría cyber de CGI cubre auditoría, control interno e integración de marcos de control.'
+      },
+      resource:{ type:'offer', title:'Cybersecurity advisory', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/business-consulting/cyber-advisory-services' }
+    },
+    {
+      id:'ai-sdlc', stage:'scale',
+      action:{
+        en:'Embed AI governance into SDLC/MLOps: model/data traceability, continuous controls, automated evidence.',
+        fr:'Intégrer la gouvernance IA au SDLC/MLOps : traçabilité modèle/données, contrôles continus, preuves automatisées.',
+        es:'Integrar la gobernanza de IA en SDLC/MLOps: trazabilidad de modelos/datos, controles continuos, evidencia automatizada.'
+      },
+      pitch:{
+        en:'CGI embeds security, compliance and responsible AI into every stage of the development lifecycle.',
+        fr:'CGI intègre sécurité, conformité et IA responsable à chaque étape du cycle de développement.',
+        es:'CGI integra seguridad, cumplimiento e IA responsable en cada etapa del ciclo de desarrollo.'
+      },
+      resource:{ type:'offer', title:'AI and the software development lifecycle', lang:'EN', region:'United States',
+        url:'https://www.cgi.com/us/en-us/artificial-intelligence/software-development-lifecycle' }
+    },
+
+    // ---- 6-12 months: optimize
+    {
+      id:'procurement', stage:'optimize',
+      action:{
+        en:'Embed sovereignty into the procurement cycle (RFPs, evaluations, renewals, supplier scorecards).',
+        fr:'Intégrer la souveraineté au cycle procurement (RFP, évaluation, renouvellements, scorecards fournisseurs).',
+        es:'Integrar la soberanía en el ciclo de compras (RFP, evaluación, renovaciones, scorecards de proveedores).'
+      },
+      pitch:{
+        en:'CGI experts explain how to frame critical providers contractually.',
+        fr:'Les experts CGI expliquent comment encadrer contractuellement les prestataires critiques.',
+        es:'Los expertos de CGI explican cómo enmarcar contractualmente a los proveedores críticos.'
+      },
+      resource:{ type:'blog', title:'How to prepare for DORA? Expert insights', lang:'EN', region:'Latvia',
+        url:'https://www.cgi.com/latviesu/en/blog/cybersecurity/how-prepare-dora-expert-insights' }
+    },
+    {
+      id:'second-sourcing', stage:'optimize',
+      action:{
+        en:'Reduce concentration risk: second-source one critical dependency and validate operational autonomy.',
+        fr:'Réduire le risque de concentration : second-sourcer une dépendance critique et valider l’autonomie opérationnelle.',
+        es:'Reducir el riesgo de concentración: second-source una dependencia crítica y validar la autonomía operativa.'
+      },
+      pitch:{
+        en:'CGI illustrates the value of a regional cloud alternative with its Cleura partnership.',
+        fr:'CGI illustre l’intérêt d’une alternative cloud régionale avec son partenariat Cleura.',
+        es:'CGI ilustra el valor de una alternativa de nube regional con su alianza con Cleura.'
+      },
+      resource:{ type:'press', title:'CGI expands sovereign cloud and AI offerings through strategic partnership with Cleura', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/cgi-expands-sovereign-cloud-ai-offerings-through-strategic-partnership-cleura-nordics' }
+    },
+    {
+      id:'automate-evidence', stage:'optimize',
+      action:{
+        en:'Automate evidence collection and continuous reporting for sovereignty controls.',
+        fr:'Automatiser la collecte de preuves et le reporting continu des contrôles de souveraineté.',
+        es:'Automatizar la recolección de evidencia y el reporte continuo de los controles de soberanía.'
+      },
+      pitch:{
+        en:'CGI shows how IT GRC tooling frees experts from manual collection.',
+        fr:'CGI montre comment un outillage IT GRC libère les experts de la collecte manuelle.',
+        es:'CGI muestra cómo las herramientas de IT GRC liberan a los expertos de la recolección manual.'
+      },
+      resource:{ type:'blog', title:'Driving more strategic IT governance, risk and compliance across the enterprise', lang:'EN', region:'Global',
+        url:'https://www.cgi.com/en/blog/business-consulting/cyber-risk-advisory/driving-more-strategic-it-governance-risk-compliance-across-enterprise' }
+    },
+  ];
+
   function buildRoadmap({criticalViolations}){
-    const quick = [];
-    const stabilize = [];
-    const scale = [];
-    const optimize = [];
-
-    const isFr = (lang==='fr');
-    const isEs = (lang==='es');
-
-    if(criticalViolations.some(v=>v.qid==='Q2')) quick.push(isFr
-      ? 'Cartographier résidence + flux des données critiques (stockage, traitement, backup, DR, transferts).'
-      : isEs
-        ? 'Mapear residencia y flujos de datos críticos (almacenamiento, procesamiento, copias, DR, transferencias).'
-        : 'Map critical data residency and flows (storage, processing, backups, DR, transfers).'
-    );
-    if(criticalViolations.some(v=>v.qid==='Q3')) quick.push(isFr
-      ? 'Ajouter des clauses souveraineté (support, sous-traitance, accès gouvernemental) + checklist exposition extraterritoriale.'
-      : isEs
-        ? 'Agregar cláusulas de soberanía (soporte, subcontratación, acceso gubernamental) + checklist de exposición extraterritorial.'
-        : 'Add sovereignty clauses (support location, subcontracting, government access) + an extraterritorial exposure checklist.'
-    );
-    if(criticalViolations.some(v=>v.qid==='Q9')) quick.push(isFr
-      ? 'Clarifier custody des clés/IAM et activer break-glass + journalisation minimale indépendante.'
-      : isEs
-        ? 'Aclarar custodia de llaves/IAM y habilitar break-glass + logging base independiente.'
-        : 'Clarify key/IAM custody and enable break-glass + independent baseline logging.'
-    );
-
-    if(criticalViolations.some(v=>v.qid==='Q11')) quick.push(isFr
-      ? 'Inventorier modèles IA, datasets, prompts système, embeddings, licences et dépendances ML critiques.'
-      : isEs
-        ? 'Inventariar modelos de IA, datasets, prompts de sistema, embeddings, licencias y dependencias ML críticas.'
-        : 'Inventory critical AI models, datasets, system prompts, embeddings, licenses, and ML dependencies.'
-    );
-    if(criticalViolations.some(v=>v.qid==='Q12')) quick.push(isFr
-      ? 'Cartographier entraînement, fine-tuning, inférence, RAG, bases vectorielles, logs IA et juridictions associées.'
-      : isEs
-        ? 'Mapear entrenamiento, fine-tuning, inferencia, RAG, almacenes vectoriales, logs de IA y jurisdicciones asociadas.'
-        : 'Map AI training, fine-tuning, inference, RAG, vector stores, AI logs, and associated jurisdictions.'
-    );
-
-    quick.push(isFr
-      ? 'Identifier le Top 5 des dépendances critiques et documenter les “hard dependencies” (régions, support, opérations).'
-      : isEs
-        ? 'Identificar las 5 dependencias críticas y documentar dependencias duras (regiones, soporte, operaciones).'
-        : 'Identify the top 5 critical dependencies and document hard dependencies (regions, support, operations).'
-    );
-    quick.push(isFr
-      ? 'Choisir 1 workload phare et produire un exit plan réaliste (cible, contraintes, coûts, délais).'
-      : isEs
-        ? 'Elegir una carga clave y crear un plan de salida realista (objetivo, restricciones, costo, plazo).'
-        : 'Select one flagship workload and draft a realistic exit plan (target, constraints, cost, timeline).'
-    );
-
-    stabilize.push(isFr
-      ? 'Formaliser la gouvernance (decision rights) et des guardrails d’architecture pour la souveraineté.'
-      : isEs
-        ? 'Formalizar la gobernanza de soberanía (derechos de decisión) y guardrails de arquitectura.'
-        : 'Formalize sovereignty governance (decision rights) and architecture guardrails.'
-    );
-    stabilize.push(isFr
-      ? 'Construire un registre des dépendances (incl. sous-traitants et composants OSS critiques).'
-      : isEs
-        ? 'Construir un registro de dependencias (incl. subcontratistas y componentes OSS críticos).'
-        : 'Build a dependency register (including subcontractors and critical OSS components).'
-    );
-    stabilize.push(isFr
-      ? 'Définir les guardrails IA responsable : supervision humaine, politiques d’usage, explicabilité, red teaming et kill switch.'
-      : isEs
-        ? 'Definir guardrails de IA responsable: supervisión humana, políticas de uso, explicabilidad, red teaming y kill switch.'
-        : 'Define responsible AI guardrails: human oversight, usage policies, explainability, red teaming, and kill switch.'
-    );
-    stabilize.push(isFr
-      ? 'Tester un scénario d’indisponibilité fournisseur (tabletop) + runbooks de reprise.'
-      : isEs
-        ? 'Ejecutar un tabletop de interrupción del proveedor y validar runbooks de recuperación.'
-        : 'Run a provider-disruption tabletop exercise and validate recovery runbooks.'
-    );
-
-    scale.push(isFr
-      ? 'Réaliser un exercice de réversibilité (pilot migration / relocation DR) et capitaliser les leçons apprises.'
-      : isEs
-        ? 'Ejecutar un ejercicio de reversibilidad (migración piloto / reubicación DR) y capturar aprendizajes.'
-        : 'Execute one reversibility exercise (pilot migration / DR relocation) and capture lessons learned.'
-    );
-    scale.push(isFr
-      ? 'Déployer des contrôles de résidence par classe de données (policy + controls + monitoring).'
-      : isEs
-        ? 'Implementar controles de residencia por clase de datos (política + controles + monitoreo).'
-        : 'Implement residency controls by data class (policy + controls + monitoring).'
-    );
-    scale.push(isFr
-      ? 'Mettre en place un “evidence pack” (audit-ready) : logs, attestations, traçabilité accès, modèle de custody clés.'
-      : isEs
-        ? 'Crear un paquete de evidencia (audit-ready): logs, atestaciones, trazabilidad de acceso y custodia de llaves.'
-        : 'Build an audit-ready evidence pack: logs, attestations, access traceability, and key custody model.'
-    );
-    scale.push(isFr
-      ? 'Intégrer la gouvernance IA au SDLC/MLOps : traçabilité modèle/données, contrôles continus et preuves automatisées.'
-      : isEs
-        ? 'Integrar la gobernanza de IA en SDLC/MLOps: trazabilidad de modelos/datos, controles continuos y evidencia automatizada.'
-        : 'Embed AI governance into SDLC/MLOps: model/data traceability, continuous controls, and automated evidence.'
-    );
-
-    optimize.push(isFr
-      ? 'Intégrer la souveraineté au cycle procurement (RFP, évaluation, renouvellements, scorecards fournisseurs).'
-      : isEs
-        ? 'Integrar requisitos de soberanía en compras (RFP, evaluación, renovaciones, scorecards).'
-        : 'Embed sovereignty requirements into procurement (RFPs, evaluations, renewals, supplier scorecards).'
-    );
-    optimize.push(isFr
-      ? 'Réduire le risque de concentration : second sourcing d’une dépendance critique et validation d’autonomie opérationnelle.'
-      : isEs
-        ? 'Reducir riesgo de concentración: second-source una dependencia crítica y validar autonomía operativa.'
-        : 'Reduce concentration risk: second-source one critical dependency and validate operational autonomy.'
-    );
-    optimize.push(isFr
-      ? 'Automatiser la collecte de preuves et le reporting continu des contrôles souveraineté.'
-      : isEs
-        ? 'Automatizar la recolección de evidencia y el reporte continuo de controles de soberanía.'
-        : 'Automate evidence collection and continuous reporting for sovereignty controls.'
-    );
-
-    const uniq = (arr) => Array.from(new Set(arr));
-    return {
-      quick: uniq(quick).slice(0,5),
-      stabilize: uniq(stabilize).slice(0,5),
-      scale: uniq(scale).slice(0,5),
-      optimize: uniq(optimize).slice(0,5)
+    const violated = new Set(criticalViolations.map(v => v.qid));
+    // Keep the original behaviour: conditional quick wins first, then the generic ones,
+    // deduplicated and capped at five items per stage.
+    const pick = (stage) => {
+      const seen = new Set();
+      return ROADMAP_ITEMS
+        .filter(item => item.stage === stage && (!item.onlyIf || violated.has(item.onlyIf)))
+        .filter(item => seen.has(item.id) ? false : (seen.add(item.id), true))
+        .slice(0, 5);
     };
+    return {
+      quick: pick('quick'),
+      stabilize: pick('stabilize'),
+      scale: pick('scale'),
+      optimize: pick('optimize')
+    };
+  }
+
+  function renderRoadmapItem(item){
+    const r = item.resource;
+    if(!r){
+      return `<li><span class="rmAction">${escapeHtml(item.action[lang])}</span></li>`;
+    }
+    const typeLabel = t().resourceType[r.type] || 'CGI';
+    const where = r.region ? `${r.lang} · ${r.region}` : r.lang;
+    return `
+      <li>
+        <span class="rmAction">${escapeHtml(item.action[lang])}</span>
+        ${item.pitch ? `<span class="rmPitch">${escapeHtml(item.pitch[lang])}</span>` : ''}
+        <a class="rmLink" href="${escapeHtml(r.url)}" target="_blank" rel="noopener noreferrer"
+           title="${escapeHtml(t().goFurther)}" aria-label="${escapeHtml(t().goFurther)}: ${escapeHtml(r.title)}">
+          <span class="rmType">${escapeHtml(typeLabel)}</span>
+          <span>${escapeHtml(r.title)}</span>
+          <span class="rmLang">${escapeHtml(where)}</span>
+        </a>
+      </li>
+    `;
   }
 
   // =======================
@@ -1929,6 +2147,19 @@
       console.assert(typeof s.weightedPct === 'number', 'weightedPct should be number');
       console.assert(Array.isArray(s.objectiveScores), 'objectiveScores should be array');
       console.assert(s.scoredCount === QUESTIONS.length, 'every question should count when all are levelled');
+
+      // Every roadmap recommendation must be trilingual and point to cgi.com when it carries a resource.
+      ROADMAP_ITEMS.forEach(item => {
+        ['en','fr','es'].forEach(l => {
+          console.assert(typeof item.action[l] === 'string' && item.action[l].length, `roadmap ${item.id}: missing action (${l})`);
+          if(item.resource) console.assert(typeof item.pitch[l] === 'string' && item.pitch[l].length, `roadmap ${item.id}: missing pitch (${l})`);
+        });
+        if(item.resource){
+          console.assert(/^https:\/\/(www\.)?cgi\.com\//.test(item.resource.url), `roadmap ${item.id}: resource must live on cgi.com`);
+          console.assert(['blog','offer','press'].includes(item.resource.type), `roadmap ${item.id}: unknown resource type`);
+        }
+      });
+      console.assert(new Set(ROADMAP_ITEMS.map(i => i.id)).size === ROADMAP_ITEMS.length, 'roadmap ids must be unique');
 
       // "Not applicable" must leave the score untouched, only shrink the counted base.
       for(const k of Object.keys(scores)) delete scores[k];

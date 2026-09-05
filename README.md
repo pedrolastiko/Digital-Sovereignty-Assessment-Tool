@@ -60,7 +60,7 @@ Then open: `http://localhost:8000`
 The runnable HTML files are available directly in the repository:
 
 - `index.html` — landing page, choose between the two questionnaires
-- `express-diagnostic.html` — Express Diagnostic, a quick self-assessment
+- `express-diagnostic.html` — Express Diagnostic, a quick self-assessment; each roadmap recommendation links to the closest CGI blog article or offering (see `RESSOURCES-CGI.md`)
 - `complete-framework.html` — Complete Framework, the full 6-pillar / 31-control / 93-question assessment
 
 You can open any of them directly in a browser, or serve them locally with:
